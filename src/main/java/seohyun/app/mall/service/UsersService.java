@@ -37,4 +37,30 @@ public class UsersService {
             throw new Exception();
         }
     }
+
+    public Users checkUserIdAndPassword(Users users) throws Exception {
+        try{
+            return usersRepository.findByUserIdAndPassword(users.getUserId(), users.getPassword());
+        } catch (Exception e){
+            throw new Exception();
+        }
+    }
+
+    @Transactional
+    public void update(Users users) throws Exception {
+        try{
+            usersRepository.save(users);
+        } catch (Exception e){
+            throw new Exception();
+        }
+    }
+
+    @Transactional
+    public void unRegister(Users users) throws Exception {
+        try{
+            usersRepository.deleteById(users.getId());
+        } catch (Exception e){
+            throw new Exception();
+        }
+    }
 }

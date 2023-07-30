@@ -76,6 +76,48 @@ public class UsersController {
     }
 
     // 회원정보 수정
+    // 비밀번호를 확인 해 사용자 아이디와 일치하면 수정 가능.
+    @PostMapping("/update")
+    public ResponseEntity<Object> update(@RequestBody Users users) throws Exception {
+        try{
+            Map<String, String> map = new HashMap<>();
+
+            Users userCheck = usersService.checkUserIdAndPassword(users);
+            if (userCheck != null) {
+                users.setId(userCheck.getId());
+                usersService.update(users);
+                map.put("result", "success 수정이 완료되었습니다.");
+            } else {
+                map.put("result", "failed 비밀번호가 일치하지 않습니다.");
+            }
+            return new ResponseEntity<>(map, HttpStatus.OK);
+        } catch (Exception e){
+            Map<String, String> map = new HashMap<>();
+            map.put("error", e.toString());
+            return new ResponseEntity<>(map, HttpStatus.OK);
+        }
+    }
 
     // 회원탈퇴
+    // 비밀번호를 확인 해 사용자 아이디와 일치하면 탈퇴 가능.
+    @PostMapping("/unregister")
+    public ResponseEntity<Object> unRegister(@RequestBody Users users) throws Exception {
+        try{
+            Map<String, String> map = new HashMap<>();
+
+            Users userCheck = usersService.checkUserIdAndPassword(users);
+            if (userCheck != null) {
+                users.setId(userCheck.getId());
+                usersService.unRegister(users);
+                map.put("result", "success 탈퇴가 완료되었습니다.");
+            } else {
+                map.put("result", "failed 비밀번호가 일치하지 않습니다.");
+            }
+            return new ResponseEntity<>(map, HttpStatus.OK);
+        } catch (Exception e){
+            Map<String, String> map = new HashMap<>();
+            map.put("error", e.toString());
+            return new ResponseEntity<>(map, HttpStatus.OK);
+        }
+    }
 }
