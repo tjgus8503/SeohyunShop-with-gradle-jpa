@@ -29,10 +29,9 @@ public class UsersService {
         }
     }
 
-    @Transactional
-    public Users signIn(Users users) throws Exception {
+    public Users findUserId(String userId) throws Exception {
         try{
-            return usersRepository.findOneByUserId(users.getUserId());
+            return usersRepository.findOneByUserId(userId);
         } catch (Exception e){
             throw new Exception();
         }
@@ -63,4 +62,6 @@ public class UsersService {
             throw new Exception();
         }
     }
+
+
 }
