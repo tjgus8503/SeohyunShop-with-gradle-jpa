@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import seohyun.app.mall.models.Users;
 import seohyun.app.mall.service.UsersService;
 import seohyun.app.mall.utils.Bcrypt;
+import seohyun.app.mall.utils.Jwt;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,6 +20,7 @@ import java.util.UUID;
 public class UsersController {
     private final UsersService usersService;
     private final Bcrypt bcrypt;
+    private final Jwt jwt;
 
 
     // 회원가입
@@ -63,6 +65,8 @@ public class UsersController {
 
             Boolean comparePassword = bcrypt.CompareHash(users.getPassword(), userIdCheck.getPassword());
             if (comparePassword == true) {
+                String xauth = jwt.CreateToken(users.getUserId());
+                map.put("xauth", xauth);
                 map.put("result", "success 로그인 성공");
             } else {
                 map.put("result", "failed 비밀번호가 일치하지 않습니다.");
@@ -121,15 +125,17 @@ public class UsersController {
         }
     }
 
-    // TODO 비밀번호 수정
+    // 비밀번호 수정
     @PostMapping("/updatepassword")
-    public ResponseEntity<Object> updatePassword(@RequestBody Map<String, String> req) throws Exception {
+    public ResponseEntity<Object> updatePassword(
+            @RequestHeader String xauth, @RequestBody Map<String, String> req) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
-            Users findUserId = usersService.findUserId(req.get("userId"));
+            String decoded = jwt.VerifyToken(xauth);
+            Users findUserId = usersService.findUserId(decoded);
             if (findUserId == null) {
-                map.put("result", "failed 해당 아이디는 존재하지 않습니다.");
+                map.put("result", "failed 토큰이 만료되었거나 없는 아이디 입니다.");
                 return new ResponseEntity<>(map, HttpStatus.OK);
             }
 
