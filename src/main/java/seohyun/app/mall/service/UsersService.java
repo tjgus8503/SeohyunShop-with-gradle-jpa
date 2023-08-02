@@ -46,7 +46,7 @@ public class UsersService {
     }
 
     @Transactional
-    public void update(Users users) throws Exception {
+    public void updateUser(Users users) throws Exception {
         try{
             usersRepository.save(users);
         } catch (Exception e){

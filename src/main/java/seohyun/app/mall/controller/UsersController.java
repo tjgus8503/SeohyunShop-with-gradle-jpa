@@ -24,7 +24,6 @@ public class UsersController {
 
 
     // 회원가입
-    // userId 중복검사
     @PostMapping("/signup")
     public ResponseEntity<Object> signUp(@RequestBody Users users) throws Exception {
         try{
@@ -80,20 +79,20 @@ public class UsersController {
     }
 
     // 회원정보 수정
-    // 비밀번호를 확인 해 사용자 아이디와 일치하면 수정 가능.
-    @PostMapping("/update")
-    public ResponseEntity<Object> update(@RequestBody Users users) throws Exception {
+    // TODO 토큰이 만료되었거나 없는 아이디 입니다. 에러 핸들링 추가? 고민.
+    @PostMapping("/updateuser")
+    public ResponseEntity<Object> updateUser(
+            @RequestHeader String xauth, @RequestBody Users users) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
-            Users userCheck = usersService.checkUserIdAndPassword(users);
-            if (userCheck != null) {
-                users.setId(userCheck.getId());
-                usersService.update(users);
-                map.put("result", "success 수정이 완료되었습니다.");
-            } else {
-                map.put("result", "failed 비밀번호가 일치하지 않습니다.");
-            }
+            String decoded  = jwt.VerifyToken(xauth);
+            Users findUserId = usersService.findUserId(decoded);
+            users.setId(findUserId.getId());
+            users.setUserId(findUserId.getUserId());
+            users.setPassword(findUserId.getPassword());
+            usersService.updateUser(users);
+            map.put("result", "success 수정이 완료되었습니다.");
             return new ResponseEntity<>(map, HttpStatus.OK);
         } catch (Exception e){
             Map<String, String> map = new HashMap<>();
@@ -102,17 +101,19 @@ public class UsersController {
         }
     }
 
-    // 회원탈퇴
-    // 비밀번호를 확인 해 사용자 아이디와 일치하면 탈퇴 가능.
+    // 회원 탈퇴
+    // 비밀번호 확인
     @PostMapping("/unregister")
-    public ResponseEntity<Object> unRegister(@RequestBody Users users) throws Exception {
+    public ResponseEntity<Object> unRegister(
+            @RequestHeader String xauth, @RequestBody Users users) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
-            Users userCheck = usersService.checkUserIdAndPassword(users);
-            if (userCheck != null) {
-                users.setId(userCheck.getId());
-                usersService.unRegister(users);
+            String decoded = jwt.VerifyToken(xauth);
+            Users findUserId = usersService.findUserId(decoded);
+            Boolean comparePassword = bcrypt.CompareHash(users.getPassword(), findUserId.getPassword());
+            if (comparePassword == true) {
+                usersService.unRegister(findUserId);
                 map.put("result", "success 탈퇴가 완료되었습니다.");
             } else {
                 map.put("result", "failed 비밀번호가 일치하지 않습니다.");
@@ -143,7 +144,7 @@ public class UsersController {
                 if (comparePassword == true) {
                     String hash = bcrypt.HashPassword(req.get("newPassword"));
                     findUserId.setPassword(hash);
-                    usersService.update(findUserId);
+                    usersService.updateUser(findUserId);
                     map.put("result", "success 수정이 완료되었습니다.");
                 } else {
                     map.put("result", "failed 비밀번호가 일치하지 않습니다.");
