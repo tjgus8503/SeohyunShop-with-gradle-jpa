@@ -20,5 +20,14 @@ public class CartsService {
             throw new Exception();
             }
         }
+
+    @Transactional
+    public void updateCart(Carts carts) throws Exception {
+        try{
+            cartsRepository.save(carts);
+        } catch (Exception e){
+            throw new Exception();
+        }
     }
+}
 

@@ -156,4 +156,20 @@ public class UsersController {
             return new ResponseEntity<>(map, HttpStatus.OK);
         }
     }
+
+    // 마이페이지 조회
+    // TODO 마이페이지에 들어갈 정보 생각하기.
+    @GetMapping("/getuser")
+    public ResponseEntity<Object> getUser() throws Exception {
+        try{
+            Map<String, String> map = new HashMap<>();
+
+
+            return new ResponseEntity<>(map, HttpStatus.OK);
+        } catch (Exception e){
+            Map<String, String> map = new HashMap<>();
+            map.put("error", e.toString());
+            return new ResponseEntity<>(map, HttpStatus.OK);
+        }
+    }
 }

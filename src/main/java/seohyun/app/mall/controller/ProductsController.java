@@ -10,7 +10,6 @@ import seohyun.app.mall.service.ProductsService;
 import seohyun.app.mall.utils.Bcrypt;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -20,7 +19,6 @@ import java.util.UUID;
 @RequestMapping("/api/v1/products")
 public class ProductsController {
     private final ProductsService productsService;
-    private final Bcrypt bcrypt;
 
     // 상품 등록
     @PostMapping("/createproduct")

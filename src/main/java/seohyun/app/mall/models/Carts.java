@@ -19,7 +19,6 @@ public class Carts {
     @Column(name = "user_id")
     private String userId;
     @Column(name = "product_id")
-    // Products 의 productName
     private String productId;
     private Integer count;
 }
