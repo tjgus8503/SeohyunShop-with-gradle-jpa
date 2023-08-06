@@ -7,6 +7,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.math.BigDecimal;
 
 @Data
 @Entity
@@ -17,15 +18,19 @@ public class Products {
     private String id;
     @Column(name = "product_name")
     private String productName;
-    private String category;
+    @Column(name = "cate_id")
+    private String cateId;
     @Column(name = "shop_name")
     private String shopName;
     private Integer price;
     private String description;
+    private BigDecimal discount;
     @Column(name = "delivery_fee")
-    private String deliveryFee;
+    private Integer deliveryFee;
+    @Column(name = "shipping_company")
+    private String shippingCompany;
     private String status;
-    private Integer count;
+    private Integer stock;
     @Column(name = "image_url")
     private String imageUrl;
 }

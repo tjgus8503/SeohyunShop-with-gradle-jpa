@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 import seohyun.app.mall.models.Products;
 import seohyun.app.mall.repository.ProductsRepository;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -68,6 +70,22 @@ public class ProductsService {
     public void deleteProduct() throws Exception {
         try{
 
+        } catch (Exception e){
+            throw new Exception();
+        }
+    }
+
+    public List<Products> getByCate(String cateId) throws Exception {
+        try{
+            return productsRepository.findOneByCateId(cateId);
+        } catch (Exception e){
+            throw new Exception();
+        }
+    }
+
+    public List<Products> getByParentCate(String parentId) throws Exception {
+        try{
+            return productsRepository.findOneByParentId(parentId);
         } catch (Exception e){
             throw new Exception();
         }

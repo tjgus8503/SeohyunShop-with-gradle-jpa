@@ -8,8 +8,10 @@ import org.springframework.web.bind.annotation.*;
 import seohyun.app.mall.models.Products;
 import seohyun.app.mall.service.ProductsService;
 import seohyun.app.mall.utils.Bcrypt;
+import seohyun.app.mall.utils.Jwt;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -19,12 +21,16 @@ import java.util.UUID;
 @RequestMapping("/api/v1/products")
 public class ProductsController {
     private final ProductsService productsService;
+    private final Jwt jwt;
 
     // 상품 등록
     @PostMapping("/createproduct")
-    public ResponseEntity<Object> createProduct(@RequestBody Products products) throws Exception {
+    public ResponseEntity<Object> createProduct(
+            @RequestHeader String xauth, @RequestBody Products products) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
+
+            String decoded = jwt.VerifyToken(xauth);
 
             UUID uuid = UUID.randomUUID();
             products.setId(uuid.toString());
@@ -38,6 +44,9 @@ public class ProductsController {
             return new ResponseEntity<>(map, HttpStatus.OK);
         }
     }
+
+    // TODO 상품 카테고리별 조회, 단일 조회
+    // TODO 상품 재고 조회
 
     // 상품 페이지 별 조회. 기본값(page = 0, limit = 10) 설정.
     @GetMapping("/getall")
@@ -82,11 +91,18 @@ public class ProductsController {
     }
 
     // 상품 수정
+    // TODO 생각: 수정하려는 상품이 등록되어있는 상태여야 수정할 수 있다. 고유한 id로 상품을 찾아,
+    // TODO 있으면 수정한다. 그런데 그러려면 수정할때 포스트맨에 id를 입력 해야 한다. 해도 되나?
+    // TODO 아니면 상품명과 회사명을 묶어서 상품 있는지 찾기? 회사당 상품 이름 겹치지 않게 해서.
     @PostMapping("/updateproduct")
-    public ResponseEntity<Object> updateProduct(@RequestBody Products products) throws Exception {
+    public ResponseEntity<Object> updateProduct(
+            @RequestHeader String xauth, @RequestBody Products products) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
+            String decoded = jwt.VerifyToken(xauth);
+
+            // TODO 여기부터 다시.
             Products productCheck = productsService.productNameCheck(products);
             if (productCheck == null) {
                 map.put("result", "failed 해당 상품을 찾을 수 없습니다.");
@@ -113,6 +129,36 @@ public class ProductsController {
 
             map.put("result", "success 삭제가 완료되었습니다.");
             return new ResponseEntity<>(map, HttpStatus.OK);
+        } catch (Exception e){
+            Map<String, String> map = new HashMap<>();
+            map.put("error", e.toString());
+            return new ResponseEntity<>(map, HttpStatus.OK);
+        }
+    }
+
+    // 상품 카테고리 별 조회(소분류)
+    @GetMapping("/getbycate")
+    public ResponseEntity<Object> getByCate(@RequestParam String cateId) throws Exception {
+        try{
+            Map<String, String> map = new HashMap<>();
+
+            List<Products> productsList = productsService.getByCate(cateId);
+            return new ResponseEntity<>(productsList, HttpStatus.OK);
+        } catch (Exception e){
+            Map<String, String> map = new HashMap<>();
+            map.put("error", e.toString());
+            return new ResponseEntity<>(map, HttpStatus.OK);
+        }
+    }
+
+    // 상품 카테고리 별 조회(중분류)
+    @GetMapping("/getbyparentcate")
+    public ResponseEntity<Object> getByParentCate(@RequestParam String parentId) throws Exception {
+        try{
+            Map<String, String> map = new HashMap<>();
+
+            List<Products> productsList = productsService.getByParentCate(parentId);
+            return new ResponseEntity<>(productsList, HttpStatus.OK);
         } catch (Exception e){
             Map<String, String> map = new HashMap<>();
             map.put("error", e.toString());
