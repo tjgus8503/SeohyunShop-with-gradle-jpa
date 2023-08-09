@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.math.BigDecimal;
+import java.util.Date;
 
 @Data
 @Entity
@@ -33,4 +34,6 @@ public class Products {
     private Integer stock;
     @Column(name = "image_url")
     private String imageUrl;
+    @Column(name = "created_at")
+    private Date createdAt;
 }
