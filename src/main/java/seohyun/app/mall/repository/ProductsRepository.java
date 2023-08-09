@@ -14,6 +14,8 @@ public interface ProductsRepository extends JpaRepository<Products, String> {
     Boolean existsByProductName(String productName);
     void deleteByProductName(String productName);
 
+    Products findOneById(String id);
+
     List<Products> findOneByCateId(String cateId);
 
     // 네이티브 sql 쿼리문

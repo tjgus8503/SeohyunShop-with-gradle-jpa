@@ -2,20 +2,20 @@ package seohyun.app.mall.models;
 
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Entity
 @Table(name = "categories")
 public class Categories {
     @Id
-    private String id;
-    @Column(name = "cate_name")
-    private String cateName;
-    @Column(name = "parent_id")
-    private String parentId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String category;
+    @Column(name = "sub_category")
+    private String subCategory;
 
 }

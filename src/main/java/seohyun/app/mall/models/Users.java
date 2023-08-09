@@ -29,6 +29,7 @@ public class Users {
     private Date birthDate;
     @Column(name = "join_date")
     private LocalDate joinDate;
-    private String role;
+    // 3 = 관리자, 2 = 상품 판매자, 1 = 일반 유저(상품 구매만 가능)
+    private Integer role;
 
 }

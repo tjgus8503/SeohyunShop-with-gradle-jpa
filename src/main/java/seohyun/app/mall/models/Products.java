@@ -19,9 +19,9 @@ public class Products {
     @Column(name = "product_name")
     private String productName;
     @Column(name = "cate_id")
-    private String cateId;
-    @Column(name = "shop_name")
-    private String shopName;
+    private Integer cateId;
+    @Column(name = "user_id")
+    private String userId;
     private Integer price;
     private String description;
     private BigDecimal discount;

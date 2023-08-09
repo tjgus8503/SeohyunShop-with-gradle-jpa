@@ -29,5 +29,14 @@ public class CartsService {
             throw new Exception();
         }
     }
+
+    @Transactional
+    public void deleteCart(String id, String decoded) throws Exception {
+        try{
+            cartsRepository.deleteByIdAndUserId(id, decoded);
+        } catch (Exception e){
+            throw new Exception();
+        }
+    }
 }
 

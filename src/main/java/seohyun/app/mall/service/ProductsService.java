@@ -35,13 +35,6 @@ public class ProductsService {
         }
     }
 
-    public Boolean productNameCheck(String productName) throws Exception {
-        try{
-            return productsRepository.existsByProductName(productName);
-        } catch (Exception e){
-            throw new Exception();
-        }
-    }
     public Products get(String productName) throws Exception {
         try{
             return productsRepository.findOneByProductName(productName);
@@ -57,6 +50,14 @@ public class ProductsService {
             throw new Exception();
         }
     }
+
+    public Products getById(String id) throws Exception {
+        try{
+            return productsRepository.findOneById(id);
+        } catch (Exception e){
+            throw new Exception();
+        }
+    }
     @Transactional
     public void updateProduct(Products products) throws Exception {
         try{
@@ -67,9 +68,9 @@ public class ProductsService {
     }
 
     @Transactional
-    public void deleteProduct() throws Exception {
+    public void deleteProduct(Products products) throws Exception {
         try{
-
+            productsRepository.deleteById(products.getId());
         } catch (Exception e){
             throw new Exception();
         }

@@ -5,7 +5,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import seohyun.app.mall.models.Carts;
+import seohyun.app.mall.models.Products;
 import seohyun.app.mall.service.CartsService;
+import seohyun.app.mall.service.ProductsService;
 import seohyun.app.mall.utils.Jwt;
 
 import java.util.HashMap;
@@ -18,11 +20,11 @@ import java.util.UUID;
 @RequestMapping("/api/v1/carts")
 public class CartsController {
     private final CartsService cartsService;
+    private final ProductsService productsService;
     private final Jwt jwt;
 
     // 장바구니 등록
-    // 한 사용자는 여러개의 장바구니를 등록할 수 있다. 한 상품은 여러개의 장바구니에 등록될 수 있다.
-    // TODO 상품 재고 조건 적용(ex 품절이면 장바구니 등록 불가)
+    // 상품 재고가 0개 or 상품의 재고보다 장바구니에 담으려는 상품 수가 많으면 장바구니 등록 불가.
     @PostMapping("/createcart")
     public ResponseEntity<Object> createCart(
             @RequestHeader String xauth, @RequestBody Carts carts) throws Exception {
@@ -31,13 +33,18 @@ public class CartsController {
 
             String decoded = jwt.VerifyToken(xauth);
 
-            UUID uuid = UUID.randomUUID();
-            carts.setId(uuid.toString());
+            Products getById = productsService.getById(carts.getProductId());
+            if (getById.getStock() == 0 || getById.getStock() < carts.getCount()) {
+                map.put("result", "failed 상품 재고가 없습니다.");
+            } else {
+                UUID uuid = UUID.randomUUID();
+                carts.setId(uuid.toString());
 
-            carts.setUserId(decoded);
+                carts.setUserId(decoded);
 
-            cartsService.creatCart(carts);
-            map.put("result", "success 장바구니에 상품이 등록되었습니다.");
+                cartsService.creatCart(carts);
+                map.put("result", "success 장바구니에 상품이 등록되었습니다.");
+            }
             return new ResponseEntity<>(map, HttpStatus.OK);
         } catch (Exception e){
             Map<String, String> map = new HashMap<>();
@@ -56,9 +63,15 @@ public class CartsController {
             Map<String, String> map = new HashMap<>();
 
             String decoded = jwt.VerifyToken(xauth);
-            // TODO 장바구니에 상품이 있어야 수정 가능?
 
-
+            Products getById = productsService.getById(carts.getProductId());
+            if (getById.getStock() == 0 || getById.getStock() < carts.getCount()) {
+                map.put("result", "failed 상품 재고가 없습니다.");
+            } else {
+                carts.setUserId(decoded);
+                cartsService.updateCart(carts);
+                map.put("result", "success 수정이 완료되었습니다.");
+            }
             return new ResponseEntity<>(map, HttpStatus.OK);
         } catch (Exception e){
             Map<String, String> map = new HashMap<>();
@@ -68,4 +81,21 @@ public class CartsController {
     }
 
     // 장바구니 삭제
+    @PostMapping("/deletecart")
+    public ResponseEntity<Object> deleteCart(
+            @RequestHeader String xauth, @RequestBody Map<String, String> req) throws Exception {
+        try{
+            Map<String, String> map = new HashMap<>();
+
+            String decoded = jwt.VerifyToken(xauth);
+
+            cartsService.deleteCart(req.get("id"), decoded);
+            map.put("result", "success 삭제가 완료되었습니다.");
+            return new ResponseEntity<>(map, HttpStatus.OK);
+        } catch (Exception e){
+            Map<String, String> map = new HashMap<>();
+            map.put("error", e.toString());
+            return new ResponseEntity<>(map, HttpStatus.OK);
+        }
+    }
 }

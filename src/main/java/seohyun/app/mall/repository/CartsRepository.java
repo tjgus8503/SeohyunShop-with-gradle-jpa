@@ -7,4 +7,5 @@ import seohyun.app.mall.models.Carts;
 @Repository
 public interface CartsRepository extends JpaRepository<Carts, String> {
 
+    void deleteByIdAndUserId(String id, String userId);
 }

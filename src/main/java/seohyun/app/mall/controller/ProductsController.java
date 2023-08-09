@@ -1,12 +1,15 @@
 package seohyun.app.mall.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.catalina.User;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import seohyun.app.mall.models.Products;
+import seohyun.app.mall.models.Users;
 import seohyun.app.mall.service.ProductsService;
+import seohyun.app.mall.service.UsersService;
 import seohyun.app.mall.utils.Bcrypt;
 import seohyun.app.mall.utils.Jwt;
 
@@ -21,9 +24,11 @@ import java.util.UUID;
 @RequestMapping("/api/v1/products")
 public class ProductsController {
     private final ProductsService productsService;
+    private final UsersService usersService;
     private final Jwt jwt;
 
     // 상품 등록
+    // role = 2 만 상품 등록 가능.
     @PostMapping("/createproduct")
     public ResponseEntity<Object> createProduct(
             @RequestHeader String xauth, @RequestBody Products products) throws Exception {
@@ -32,11 +37,16 @@ public class ProductsController {
 
             String decoded = jwt.VerifyToken(xauth);
 
-            UUID uuid = UUID.randomUUID();
-            products.setId(uuid.toString());
+            Users findUserId = usersService.findUserId(decoded);
+            if (findUserId.getRole() != 2) {
+                map.put("result", "failed 등록 권한이 없습니다.");
+            } else {
+                UUID uuid = UUID.randomUUID();
+                products.setId(uuid.toString());
 
-            productsService.createProduct(products);
-            map.put("result", "success 등록이 완료되었습니다.");
+                productsService.createProduct(products);
+                map.put("result", "success 등록이 완료되었습니다.");
+            }
             return new ResponseEntity<>(map, HttpStatus.OK);
         } catch (Exception e){
             Map<String, String> map = new HashMap<>();
@@ -65,23 +75,15 @@ public class ProductsController {
         }
     }
 
-    // 상품 단일 조회.(상품명)
-    // 해당 명의 상품이 존재하지 않으면 조회 불가.
     @GetMapping("/get")
     public ResponseEntity<Object> get(
-            @RequestParam String productName
+            @RequestParam String id
     ) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
-            Boolean productCheck = productsService.productNameCheck(productName);
-            if (productCheck == false) {
-                map.put("result", "failed 해당 상품을 조회할 수 없습니다.");
-                return new ResponseEntity<>(map, HttpStatus.OK);
-            } else {
-                Products product  = productsService.get(productName);
+                Products product  = productsService.getById(id);
                 return new ResponseEntity<>(product, HttpStatus.OK);
-            }
 
         } catch (Exception e){
             Map<String, String> map = new HashMap<>();
@@ -91,9 +93,7 @@ public class ProductsController {
     }
 
     // 상품 수정
-    // TODO 생각: 수정하려는 상품이 등록되어있는 상태여야 수정할 수 있다. 고유한 id로 상품을 찾아,
-    // TODO 있으면 수정한다. 그런데 그러려면 수정할때 포스트맨에 id를 입력 해야 한다. 해도 되나?
-    // TODO 아니면 상품명과 회사명을 묶어서 상품 있는지 찾기? 회사당 상품 이름 겹치지 않게 해서.
+    // 상품을 등록한 사람 or 관리자 (role = 3)만 수정 가능.
     @PostMapping("/updateproduct")
     public ResponseEntity<Object> updateProduct(
             @RequestHeader String xauth, @RequestBody Products products) throws Exception {
@@ -102,14 +102,14 @@ public class ProductsController {
 
             String decoded = jwt.VerifyToken(xauth);
 
-            // TODO 여기부터 다시.
-            Products productCheck = productsService.productNameCheck(products);
-            if (productCheck == null) {
-                map.put("result", "failed 해당 상품을 찾을 수 없습니다.");
-            } else {
-                products.setId(productCheck.getId());
+            Users findUserId = usersService.findUserId(decoded);
+            Products getById = productsService.getById(products.getId());
+            if (findUserId.getRole() == 3 || getById.getUserId().equals(decoded)) {
+                products.setUserId(getById.getUserId());
                 productsService.updateProduct(products);
                 map.put("result", "success 수정이 완료되었습니다.");
+            } else {
+                map.put("result", "failed 수정 권한이 없습니다.");
             }
             return new ResponseEntity<>(map, HttpStatus.OK);
         } catch (Exception e){
@@ -119,15 +119,24 @@ public class ProductsController {
         }
     }
 
-    // TODO 상품 삭제
-    // postmapping? getmapping? deleteby 함수도 변형 가능?
+    // 상품 삭제
+    // 상품을 등록한 사람 or 관리자 (role = 3)만 삭제 가능.
     @PostMapping("/deleteproduct")
     public ResponseEntity<Object> deleteProduct(
-    ) throws Exception {
+            @RequestHeader String xauth, @RequestBody Products products) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
-            map.put("result", "success 삭제가 완료되었습니다.");
+            String decoded = jwt.VerifyToken(xauth);
+
+            Users findUserId = usersService.findUserId(decoded);
+            Products getById = productsService.getById(products.getId());
+            if (findUserId.getRole() == 3 || getById.getUserId().equals(decoded)) {
+                productsService.deleteProduct(products);
+                map.put("result", "success 삭제가 완료되었습니다.");
+            } else {
+                map.put("result", "failed 삭제 권한이 없습니다.");
+            }
             return new ResponseEntity<>(map, HttpStatus.OK);
         } catch (Exception e){
             Map<String, String> map = new HashMap<>();
@@ -136,33 +145,33 @@ public class ProductsController {
         }
     }
 
-    // 상품 카테고리 별 조회(소분류)
-    @GetMapping("/getbycate")
-    public ResponseEntity<Object> getByCate(@RequestParam String cateId) throws Exception {
-        try{
-            Map<String, String> map = new HashMap<>();
-
-            List<Products> productsList = productsService.getByCate(cateId);
-            return new ResponseEntity<>(productsList, HttpStatus.OK);
-        } catch (Exception e){
-            Map<String, String> map = new HashMap<>();
-            map.put("error", e.toString());
-            return new ResponseEntity<>(map, HttpStatus.OK);
-        }
-    }
-
-    // 상품 카테고리 별 조회(중분류)
-    @GetMapping("/getbyparentcate")
-    public ResponseEntity<Object> getByParentCate(@RequestParam String parentId) throws Exception {
-        try{
-            Map<String, String> map = new HashMap<>();
-
-            List<Products> productsList = productsService.getByParentCate(parentId);
-            return new ResponseEntity<>(productsList, HttpStatus.OK);
-        } catch (Exception e){
-            Map<String, String> map = new HashMap<>();
-            map.put("error", e.toString());
-            return new ResponseEntity<>(map, HttpStatus.OK);
-        }
-    }
+//    // 상품 카테고리 별 조회(소분류)
+//    @GetMapping("/getbycate")
+//    public ResponseEntity<Object> getByCate(@RequestParam String cateId) throws Exception {
+//        try{
+//            Map<String, String> map = new HashMap<>();
+//
+//            List<Products> productsList = productsService.getByCate(cateId);
+//            return new ResponseEntity<>(productsList, HttpStatus.OK);
+//        } catch (Exception e){
+//            Map<String, String> map = new HashMap<>();
+//            map.put("error", e.toString());
+//            return new ResponseEntity<>(map, HttpStatus.OK);
+//        }
+//    }
+//
+//    // 상품 카테고리 별 조회(중분류)
+//    @GetMapping("/getbyparentcate")
+//    public ResponseEntity<Object> getByParentCate(@RequestParam String parentId) throws Exception {
+//        try{
+//            Map<String, String> map = new HashMap<>();
+//
+//            List<Products> productsList = productsService.getByParentCate(parentId);
+//            return new ResponseEntity<>(productsList, HttpStatus.OK);
+//        } catch (Exception e){
+//            Map<String, String> map = new HashMap<>();
+//            map.put("error", e.toString());
+//            return new ResponseEntity<>(map, HttpStatus.OK);
+//        }
+//    }
 }
