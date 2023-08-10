@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
@@ -28,7 +29,7 @@ public class Users {
     @Column(name = "birth_date")
     private Date birthDate;
     @Column(name = "join_date")
-    private LocalDate joinDate;
+    private LocalDateTime joinDate;
     // 3 = 관리자, 2 = 상품 판매자, 1 = 일반 유저(상품 구매만 가능)
     private Integer role;
 

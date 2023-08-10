@@ -1,6 +1,7 @@
 package seohyun.app.mall.models;
 
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,15 +12,17 @@ import java.util.Date;
 
 @Data
 @Entity
-@Table(name = "manager_requests")
-public class ManagerRequests {
+@Table(name = "reviews")
+public class Reviews {
     @Id
     private String id;
     @Column(name = "user_id")
     private String userId;
-    @Column(name = "request_role")
-    private Integer requestRole;
+    @Column(name = "product_id")
+    private String productId;
+    private String content;
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-    private Boolean approved;
+    @Column(name = "image_url")
+    private String imageUrl;
 }

@@ -19,7 +19,7 @@ public interface ProductsRepository extends JpaRepository<Products, String> {
     List<Products> findOneByCateId(String cateId);
 
     // 네이티브 sql 쿼리문
-    @Query(value = "select p.* from products p " +
-            "join categories c on p.cate_id = c.id where c.parent_id = :parentId", nativeQuery = true)
-    List<Products> findOneByParentId(@Param("parentId") String parentId);
+//    @Query(value = "select p.* from products p " +
+//            "join categories c on p.cate_id = c.id where c.parent_id = :parentId", nativeQuery = true)
+//    List<Products> findOneByParentId(@Param("parentId") String parentId);
 }

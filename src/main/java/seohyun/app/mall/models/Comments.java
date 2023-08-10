@@ -1,6 +1,7 @@
 package seohyun.app.mall.models;
 
 import lombok.Data;
+import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,15 +12,16 @@ import java.util.Date;
 
 @Data
 @Entity
-@Table(name = "manager_requests")
-public class ManagerRequests {
+@Table(name = "comments")
+public class Comments {
     @Id
     private String id;
     @Column(name = "user_id")
     private String userId;
-    @Column(name = "request_role")
-    private Integer requestRole;
-    @Column(name = "created_at")
+    @Column(name = "product_inquiries_id")
+    private String productInquiriesId;
+    private String content;
+    @CreatedDate
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
-    private Boolean approved;
 }

@@ -84,11 +84,4 @@ public class ProductsService {
         }
     }
 
-    public List<Products> getByParentCate(String parentId) throws Exception {
-        try{
-            return productsRepository.findOneByParentId(parentId);
-        } catch (Exception e){
-            throw new Exception();
-        }
-    }
 }
