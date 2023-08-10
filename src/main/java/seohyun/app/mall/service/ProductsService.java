@@ -22,7 +22,7 @@ public class ProductsService {
         try{
             productsRepository.save(products);
         } catch (Exception e){
-            throw new Exception();
+            throw new Exception(e);
         }
     }
 
@@ -31,7 +31,7 @@ public class ProductsService {
             Pageable pageable = PageRequest.of(pageNumber, pageSize);
             return productsRepository.findAll(pageable);
         } catch (Exception e){
-            throw new Exception();
+            throw new Exception(e);
         }
     }
 
@@ -39,7 +39,7 @@ public class ProductsService {
         try{
             return productsRepository.findOneByProductName(productName);
         } catch (Exception e){
-            throw new Exception();
+            throw new Exception(e);
         }
     }
 
@@ -47,7 +47,7 @@ public class ProductsService {
         try{
             return productsRepository.findOneByProductName(products.getProductName());
         } catch (Exception e){
-            throw new Exception();
+            throw new Exception(e);
         }
     }
 
@@ -55,7 +55,7 @@ public class ProductsService {
         try{
             return productsRepository.findOneById(id);
         } catch (Exception e){
-            throw new Exception();
+            throw new Exception(e);
         }
     }
     @Transactional
@@ -63,7 +63,7 @@ public class ProductsService {
         try{
             productsRepository.save(products);
         } catch (Exception e) {
-            throw new Exception();
+            throw new Exception(e);
         }
     }
 
@@ -72,7 +72,7 @@ public class ProductsService {
         try{
             productsRepository.deleteById(products.getId());
         } catch (Exception e){
-            throw new Exception();
+            throw new Exception(e);
         }
     }
 
@@ -80,7 +80,7 @@ public class ProductsService {
         try{
             return productsRepository.findOneByCateId(cateId);
         } catch (Exception e){
-            throw new Exception();
+            throw new Exception(e);
         }
     }
 

@@ -22,7 +22,7 @@ public class ManagerReqService {
         try{
             managerReqRepository.save(managerRequests);
         } catch (Exception e){
-            throw new Exception();
+            throw new Exception(e);
         }
     }
 
@@ -31,7 +31,7 @@ public class ManagerReqService {
         try{
             managerReqRepository.save(managerRequests);
         } catch (Exception e){
-            throw new Exception();
+            throw new Exception(e);
         }
     }
 
@@ -40,7 +40,7 @@ public class ManagerReqService {
             Pageable pageable = PageRequest.of(pageNumber, pageSize);
             return managerReqRepository.findAll(pageable);
         } catch (Exception e){
-            throw new Exception();
+            throw new Exception(e);
         }
     }
 }

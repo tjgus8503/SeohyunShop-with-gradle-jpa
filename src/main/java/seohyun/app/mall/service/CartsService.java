@@ -17,7 +17,7 @@ public class CartsService {
         try{
             cartsRepository.save(carts);
         } catch (Exception e){
-            throw new Exception();
+            throw new Exception(e);
             }
         }
 
@@ -26,7 +26,7 @@ public class CartsService {
         try{
             cartsRepository.save(carts);
         } catch (Exception e){
-            throw new Exception();
+            throw new Exception(e);
         }
     }
 
@@ -35,7 +35,7 @@ public class CartsService {
         try{
             cartsRepository.deleteByIdAndUserId(id, decoded);
         } catch (Exception e){
-            throw new Exception();
+            throw new Exception(e);
         }
     }
 }

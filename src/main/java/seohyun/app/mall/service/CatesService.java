@@ -18,7 +18,7 @@ public class CatesService {
         try{
             categoriesRepository.save(categories);
         } catch (Exception e){
-            throw new Exception();
+            throw new Exception(e);
         }
     }
 
@@ -26,7 +26,7 @@ public class CatesService {
         try{
             return categoriesRepository.findOneById(Id);
         } catch (Exception e){
-            throw new Exception();
+            throw new Exception(e);
         }
     }
 

@@ -17,7 +17,7 @@ public class CommentsService {
         try{
             commentsRepository.save(comments);
         } catch (Exception e){
-            throw new Exception();
+            throw new Exception(e);
         }
     }
 }

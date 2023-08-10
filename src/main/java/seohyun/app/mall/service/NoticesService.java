@@ -22,7 +22,7 @@ public class NoticesService {
         try{
             noticesRepository.save(notices);
         } catch (Exception e){
-            throw new Exception();
+            throw new Exception(e);
         }
     }
 
@@ -31,7 +31,7 @@ public class NoticesService {
             Pageable pageable = PageRequest.of(pageNumber, pageSize);
             return noticesRepository.findAll(pageable);
         } catch (Exception e){
-            throw new Exception();
+            throw new Exception(e);
         }
     }
 
@@ -39,7 +39,7 @@ public class NoticesService {
         try{
             return noticesRepository.findOneById(id);
         } catch (Exception e){
-            throw new Exception();
+            throw new Exception(e);
         }
     }
 }

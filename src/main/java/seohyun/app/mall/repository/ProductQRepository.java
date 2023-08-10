@@ -8,5 +8,5 @@ import seohyun.app.mall.models.ProductInquiries;
 @Repository
 public interface ProductQRepository extends JpaRepository<ProductInquiries, String> {
 
-
+ProductInquiries findOneById(String id);
 }

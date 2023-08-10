@@ -17,7 +17,7 @@ public class UsersService {
         try{
             return usersRepository.existsByUserId(users.getUserId());
         } catch (Exception e){
-            throw new Exception();
+            throw new Exception(e);
         }
     }
     @Transactional
@@ -25,7 +25,7 @@ public class UsersService {
         try{
             usersRepository.save(users);
         } catch (Exception e){
-            throw new Exception();
+            throw new Exception(e);
         }
     }
 
@@ -33,7 +33,7 @@ public class UsersService {
         try{
             return usersRepository.findOneByUserId(userId);
         } catch (Exception e){
-            throw new Exception();
+            throw new Exception(e);
         }
     }
 
@@ -41,7 +41,7 @@ public class UsersService {
         try{
             return usersRepository.findByUserIdAndPassword(users.getUserId(), users.getPassword());
         } catch (Exception e){
-            throw new Exception();
+            throw new Exception(e);
         }
     }
 
@@ -50,7 +50,7 @@ public class UsersService {
         try{
             usersRepository.save(users);
         } catch (Exception e){
-            throw new Exception();
+            throw new Exception(e);
         }
     }
 
@@ -59,7 +59,7 @@ public class UsersService {
         try{
             usersRepository.deleteById(users.getId());
         } catch (Exception e){
-            throw new Exception();
+            throw new Exception(e);
         }
     }
     // TODO 겹치는 메소드 정리.

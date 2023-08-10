@@ -17,19 +17,33 @@ public class ProductQService {
         try{
             productQRepository.save(productInquiries);
         } catch (Exception e){
-            throw new Exception();
+            throw new Exception(e);
         }
     }
 
-//    public ProductInquiries getBy
+    public ProductInquiries getById(String id) throws Exception {
+        try{
+            return productQRepository.findOneById(id);
+        } catch (Exception e){
+            throw new Exception(e);
+        }
+    }
     @Transactional
     public void updateProductQ(ProductInquiries productInquiries) throws Exception {
         try{
             productQRepository.save(productInquiries);
         } catch (Exception e){
-            throw new Exception();
+            throw new Exception(e);
         }
     }
 
+    @Transactional
+    public void deleteProductQ(String id) throws Exception {
+        try{
+            productQRepository.deleteById(id);
+        } catch (Exception e){
+            throw new Exception(e);
+        }
+    }
 
 }
