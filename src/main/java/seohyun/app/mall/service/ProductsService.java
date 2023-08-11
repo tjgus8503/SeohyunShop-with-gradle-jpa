@@ -10,6 +10,7 @@ import seohyun.app.mall.models.Products;
 import seohyun.app.mall.repository.ProductsRepository;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -35,21 +36,6 @@ public class ProductsService {
         }
     }
 
-    public Products get(String productName) throws Exception {
-        try{
-            return productsRepository.findOneByProductName(productName);
-        } catch (Exception e){
-            throw new Exception(e);
-        }
-    }
-
-    public Products productNameCheck(Products products) throws Exception{
-        try{
-            return productsRepository.findOneByProductName(products.getProductName());
-        } catch (Exception e){
-            throw new Exception(e);
-        }
-    }
 
     public Products getById(String id) throws Exception {
         try{
@@ -58,6 +44,15 @@ public class ProductsService {
             throw new Exception(e);
         }
     }
+
+    public List<Map<String, Object>> getProductWithCount(String id) throws Exception {
+        try{
+            return productsRepository.getProductWithCount(id);
+        } catch (Exception e){
+            throw new Exception(e);
+        }
+    }
+
     @Transactional
     public void updateProduct(Products products) throws Exception {
         try{
@@ -76,12 +71,13 @@ public class ProductsService {
         }
     }
 
-    public List<Products> getByCate(String cateId) throws Exception {
+    public List<Products> getProductsByCate(Integer cateId) throws Exception {
         try{
-            return productsRepository.findOneByCateId(cateId);
+            return productsRepository.findByCateId(cateId);
         } catch (Exception e){
             throw new Exception(e);
         }
     }
+
 
 }

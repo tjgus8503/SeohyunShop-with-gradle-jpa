@@ -7,4 +7,8 @@ import seohyun.app.mall.models.Reviews;
 @Repository
 public interface ReviewsRepository extends JpaRepository<Reviews, String> {
 
+    Reviews findOneById(String id);
+
+    void deleteByIdAndUserId(String id, String userId);
+
 }

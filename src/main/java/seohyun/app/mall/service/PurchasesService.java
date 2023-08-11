@@ -40,4 +40,12 @@ public class PurchasesService {
             throw new Exception(e);
         }
     }
+
+    public Purchases checkProduct(String userId, String productId) throws Exception {
+        try{
+            return purchasesRepository.findByUserIdAndProductId(userId, productId);
+        } catch (Exception e){
+            throw new Exception(e);
+        }
+    }
 }

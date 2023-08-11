@@ -7,19 +7,18 @@ import org.springframework.stereotype.Repository;
 import seohyun.app.mall.models.Products;
 
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public interface ProductsRepository extends JpaRepository<Products, String> {
-    Products findOneByProductName(String productName);
-    Boolean existsByProductName(String productName);
-    void deleteByProductName(String productName);
+
+
+    @Query(value = "select products.*, count(reviews.product_id)as reviews_count,count(product_inquiries.product_id)as inquiries_count from products \n" +
+            "left join reviews on products.id = reviews.product_id left join product_inquiries on products.id = product_inquiries.product_id\n" +
+            "where products.id =:id", nativeQuery = true)
+    List<Map<String, Object>> getProductWithCount(@Param("id") String id);
 
     Products findOneById(String id);
 
-    List<Products> findOneByCateId(String cateId);
-
-    // 네이티브 sql 쿼리문
-//    @Query(value = "select p.* from products p " +
-//            "join categories c on p.cate_id = c.id where c.parent_id = :parentId", nativeQuery = true)
-//    List<Products> findOneByParentId(@Param("parentId") String parentId);
+    List<Products> findByCateId(Integer cateId);
 }

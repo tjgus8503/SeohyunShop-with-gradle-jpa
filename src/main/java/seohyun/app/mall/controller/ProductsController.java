@@ -55,10 +55,9 @@ public class ProductsController {
         }
     }
 
-    // TODO 상품 카테고리별 조회, 단일 조회
-    // TODO 상품 재고 조회
 
-    // 상품 페이지 별 조회. 기본값(page = 0, limit = 10) 설정.
+    // 상품 전체 조회
+    // 페이지 단위 조회. 기본값(page = 0, limit = 10) 설정.
     @GetMapping("/getall")
     public ResponseEntity<Object> getAll(
             @RequestParam(value = "page", defaultValue = "0") Integer pageNumber,
@@ -75,14 +74,15 @@ public class ProductsController {
         }
     }
 
-    @GetMapping("/get")
-    public ResponseEntity<Object> get(
+    // 상품 단일 조회
+    @GetMapping("/getbyid")
+    public ResponseEntity<Object> getById(
             @RequestParam String id
     ) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
-                Products product  = productsService.getById(id);
+            List<Map<String, Object>> product  = productsService.getProductWithCount(id);
                 return new ResponseEntity<>(product, HttpStatus.OK);
 
         } catch (Exception e){
@@ -145,33 +145,20 @@ public class ProductsController {
         }
     }
 
-//    // 상품 카테고리 별 조회(소분류)
-//    @GetMapping("/getbycate")
-//    public ResponseEntity<Object> getByCate(@RequestParam String cateId) throws Exception {
-//        try{
-//            Map<String, String> map = new HashMap<>();
-//
-//            List<Products> productsList = productsService.getByCate(cateId);
-//            return new ResponseEntity<>(productsList, HttpStatus.OK);
-//        } catch (Exception e){
-//            Map<String, String> map = new HashMap<>();
-//            map.put("error", e.toString());
-//            return new ResponseEntity<>(map, HttpStatus.OK);
-//        }
-//    }
-//
-//    // 상품 카테고리 별 조회(중분류)
-//    @GetMapping("/getbyparentcate")
-//    public ResponseEntity<Object> getByParentCate(@RequestParam String parentId) throws Exception {
-//        try{
-//            Map<String, String> map = new HashMap<>();
-//
-//            List<Products> productsList = productsService.getByParentCate(parentId);
-//            return new ResponseEntity<>(productsList, HttpStatus.OK);
-//        } catch (Exception e){
-//            Map<String, String> map = new HashMap<>();
-//            map.put("error", e.toString());
-//            return new ResponseEntity<>(map, HttpStatus.OK);
-//        }
-//    }
+    // 상품 조회 (카테고리 별)
+    @GetMapping("/getproductsbycate")
+    public ResponseEntity<Object> getProductsByCate(
+            @RequestParam Integer cateId) throws Exception {
+        try{
+            Map<String, String> map = new HashMap<>();
+
+            List<Products> getProductsByCate = productsService.getProductsByCate(cateId);
+            return new ResponseEntity<>(getProductsByCate, HttpStatus.OK);
+        } catch (Exception e){
+            Map<String, String> map = new HashMap<>();
+            map.put("error", e.toString());
+            return new ResponseEntity<>(map, HttpStatus.OK);
+        }
+    }
+
 }
