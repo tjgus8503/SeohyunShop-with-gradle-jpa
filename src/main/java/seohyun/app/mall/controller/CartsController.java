@@ -11,6 +11,7 @@ import seohyun.app.mall.service.ProductsService;
 import seohyun.app.mall.utils.Jwt;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -53,7 +54,25 @@ public class CartsController {
         }
     }
 
-    // 장바구니 조회
+    // 마이페이지 - 장바구니 조회
+    @GetMapping("/getallcarts")
+    public ResponseEntity<Object> getAllCarts(
+            @RequestHeader String xauth
+    ) throws Exception {
+        try{
+            Map<String, String> map = new HashMap<>();
+
+            String decoded = jwt.VerifyToken(xauth);
+
+            List<Carts> getByUserId = cartsService.getByUserId(decoded);
+            return new ResponseEntity<>(getByUserId, HttpStatus.OK);
+        } catch (Exception e){
+            Map<String, String> map = new HashMap<>();
+            map.put("error", e.toString());
+            return new ResponseEntity<>(map, HttpStatus.OK);
+        }
+    }
+
 
     // 장바구니 수정
     @PostMapping("/updatecart")

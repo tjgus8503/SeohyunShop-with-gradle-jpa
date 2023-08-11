@@ -6,6 +6,8 @@ import org.springframework.transaction.annotation.Transactional;
 import seohyun.app.mall.models.Carts;
 import seohyun.app.mall.repository.CartsRepository;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -34,6 +36,14 @@ public class CartsService {
     public void deleteCart(String id, String decoded) throws Exception {
         try{
             cartsRepository.deleteByIdAndUserId(id, decoded);
+        } catch (Exception e){
+            throw new Exception(e);
+        }
+    }
+
+    public List<Carts> getByUserId(String userId) throws Exception {
+        try{
+            return cartsRepository.findByUserId(userId);
         } catch (Exception e){
             throw new Exception(e);
         }

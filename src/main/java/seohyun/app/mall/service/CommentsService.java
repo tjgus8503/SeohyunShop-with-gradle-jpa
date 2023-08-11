@@ -20,4 +20,30 @@ public class CommentsService {
             throw new Exception(e);
         }
     }
+
+    public Comments getById(String id) throws Exception {
+        try{
+            return commentsRepository.findOneById(id);
+        } catch (Exception e){
+            throw new Exception(e);
+        }
+    }
+
+    @Transactional
+    public void updateComment(Comments comments) throws Exception {
+        try{
+            commentsRepository.save(comments);
+        } catch (Exception e){
+            throw new Exception(e);
+        }
+    }
+
+    @Transactional
+    public void deleteComment(String id) throws Exception {
+        try{
+            commentsRepository.deleteById(id);
+        } catch (Exception e){
+            throw new Exception(e);
+        }
+    }
 }
