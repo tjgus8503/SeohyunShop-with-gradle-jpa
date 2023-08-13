@@ -18,7 +18,8 @@ public class Jwt {
     @Value("${REFRESH_KEY}")
     String RefreshKey;
 
-    private final Long expiredTime = 1000 * 60L * 30L; // 30분
+//    private final Long expiredTime = 1000 * 60L * 30L; // 30분
+    private final Long expiredTime = 1000 * 60L * 60L * 24L; // 1일 (테스트 용)
     private final Long rexpiredTime = 1000 * 60L * 60L * 24L * 7L; // 7일
 
     ////////////////// create //////////////////

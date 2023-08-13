@@ -19,7 +19,7 @@ import java.util.Date;
 @Entity
 @Table(name = "products")
 // TODO 상품의 재고는 사용자의 구매갯수에 따라 변한다.
-public class Products {
+public class Products extends DateEntity {
     @Id
     private String id;
     @Column(name = "product_name")
@@ -39,7 +39,4 @@ public class Products {
     private Integer stock;
     @Column(name = "image_url")
     private String imageUrl;
-    @CreatedDate
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
 }

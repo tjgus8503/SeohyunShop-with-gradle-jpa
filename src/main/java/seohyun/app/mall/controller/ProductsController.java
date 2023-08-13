@@ -1,11 +1,15 @@
 package seohyun.app.mall.controller;
 
 import lombok.RequiredArgsConstructor;
+import net.bytebuddy.description.field.FieldList;
 import org.apache.catalina.User;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.util.WebUtils;
 import seohyun.app.mall.models.Products;
 import seohyun.app.mall.models.Users;
 import seohyun.app.mall.service.ProductsService;
@@ -13,10 +17,8 @@ import seohyun.app.mall.service.UsersService;
 import seohyun.app.mall.utils.Bcrypt;
 import seohyun.app.mall.utils.Jwt;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.io.File;
+import java.util.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -79,11 +81,10 @@ public class ProductsController {
     public ResponseEntity<Object> getById(
             @RequestParam String id
     ) throws Exception {
-        try{
-            Map<String, String> map = new HashMap<>();
+        try {
 
-            List<Map<String, Object>> product  = productsService.getProductWithCount(id);
-                return new ResponseEntity<>(product, HttpStatus.OK);
+            Map<String, Object> product  = productsService.getProductWithCount(id);
+            return new ResponseEntity<>(product, HttpStatus.OK);
 
         } catch (Exception e){
             Map<String, String> map = new HashMap<>();
@@ -154,6 +155,62 @@ public class ProductsController {
 
             List<Products> getProductsByCate = productsService.getProductsByCate(cateId);
             return new ResponseEntity<>(getProductsByCate, HttpStatus.OK);
+        } catch (Exception e){
+            Map<String, String> map = new HashMap<>();
+            map.put("error", e.toString());
+            return new ResponseEntity<>(map, HttpStatus.OK);
+        }
+    }
+
+    // 상품 등록 +이미지
+    @PostMapping("/withimage")
+    public ResponseEntity<Object> withImage(
+            @RequestHeader String xauth, @ModelAttribute Products products,
+            @RequestPart(required = false) MultipartFile image
+            ) throws Exception {
+        try{
+            Map<String, String> map = new HashMap<>();
+            String decoded = jwt.VerifyToken(xauth);
+
+            Users findUserId = usersService.findUserId(decoded);
+            if (findUserId.getRole() != 2) {
+                map.put("result", "failed 등록 권한이 없습니다.");
+            } else {
+                UUID uuid = UUID.randomUUID();
+                products.setId(uuid.toString());
+                products.setUserId(decoded);
+
+                // 1. 파일 저장 경로 설정 : 실제 서비스되는 위치(프로젝트 외부에 저장)
+                String uploadPath = "/Users/parkseohyun/project/mall/src/main/java/seohyun/app/mall/imageUpload/";
+                // 2. 원본 파일 이름 알아오기
+                String originalFileName = image.getOriginalFilename();
+                // 3. 파일 이름 중복되지 않게 이름 변경(서버에 저장할 이름) UUID 사용
+                UUID uuid2 = UUID.randomUUID();
+                String savedFileName = uuid2.toString() + "_" + originalFileName;
+                // 4. 파일 생성
+                File file1 = new File(uploadPath + savedFileName);
+                // 5. 서버로 전송
+                image.transferTo(file1);
+                // model로 저장
+
+                products.setImageUrl(uploadPath+savedFileName);
+                productsService.createProduct(products);
+                map.put("result", "success 등록이 완료되었습니다.");
+            }
+            return new ResponseEntity<>(map, HttpStatus.OK);
+        } catch (Exception e){
+            Map<String, String> map = new HashMap<>();
+            map.put("error", e.toString());
+            return new ResponseEntity<>(map, HttpStatus.OK);
+        }
+    }
+
+    // 파일 가져오기
+    @GetMapping("/getfile")
+    public ResponseEntity<Object> getFile(@RequestParam String id) throws Exception {
+        try{
+            Map<String, Object> product  = productsService.getProductWithCount(id);
+            return new ResponseEntity<>(product, HttpStatus.OK);
         } catch (Exception e){
             Map<String, String> map = new HashMap<>();
             map.put("error", e.toString());

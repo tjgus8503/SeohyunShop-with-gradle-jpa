@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import seohyun.app.mall.models.Carts;
 import seohyun.app.mall.models.Products;
 import seohyun.app.mall.models.Purchases;
 import seohyun.app.mall.service.*;
@@ -21,6 +22,7 @@ import java.util.UUID;
 public class PurchasesController {
     private final PurchasesService purchasesService;
     private final ProductsService productsService;
+    private final CartsService cartsService;
     private final Jwt jwt;
 
     // 상품 페이지에서 바로 주문 ver
@@ -85,6 +87,30 @@ public class PurchasesController {
             String decoded = jwt.VerifyToken(xauth);
             List<Purchases> getByUserId = purchasesService.getByUserId(decoded);
             return new ResponseEntity<>(getByUserId, HttpStatus.OK);
+        } catch (Exception e){
+            Map<String, String> map = new HashMap<>();
+            map.put("error", e.toString());
+            return new ResponseEntity<>(map, HttpStatus.OK);
+        }
+    }
+
+    //
+    @PostMapping("/createpurchases")
+    public ResponseEntity<Object> createPurchases(
+            @RequestHeader String xauth, @RequestBody List<Purchases> purchasesList) throws Exception {
+        try{
+            Map<String, String> map = new HashMap<>();
+
+            String decoded = jwt.VerifyToken(xauth);
+
+            List<Carts> getByUserId = cartsService.getByUserId(decoded);
+            if (getByUserId != null) {
+                purchasesService.createPurchases(purchasesList, decoded);
+                map.put("result", "success 주문이 완료되었습니다.");
+            } else {
+                map.put("result", "failed 주문 상품이 장바구니에 없습니다.");
+            }
+            return new ResponseEntity<>(map, HttpStatus.OK);
         } catch (Exception e){
             Map<String, String> map = new HashMap<>();
             map.put("error", e.toString());

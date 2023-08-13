@@ -16,7 +16,7 @@ public interface ProductsRepository extends JpaRepository<Products, String> {
     @Query(value = "select products.*, count(reviews.product_id)as reviews_count,count(product_inquiries.product_id)as inquiries_count from products \n" +
             "left join reviews on products.id = reviews.product_id left join product_inquiries on products.id = product_inquiries.product_id\n" +
             "where products.id =:id", nativeQuery = true)
-    List<Map<String, Object>> getProductWithCount(@Param("id") String id);
+    Map<String, Object> getProductWithCount(@Param("id") String id);
 
     Products findOneById(String id);
 

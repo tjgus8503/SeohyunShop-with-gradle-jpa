@@ -117,4 +117,7 @@ public class CartsController {
             return new ResponseEntity<>(map, HttpStatus.OK);
         }
     }
+
+    // 장바구니에서 상품 주문
+    // 유저가 본인의 장바구니에서 상품을 선택해 주문 가능.
 }

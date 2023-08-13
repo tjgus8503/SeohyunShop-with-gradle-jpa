@@ -1,6 +1,6 @@
 package seohyun.app.mall.models;
 
-import lombok.Data;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -11,6 +11,9 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "purchases")
 @EntityListeners(AuditingEntityListener.class)
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 // 상품 페이지에서 바로 주문 (해당 상품만 구매 가능)
 public class Purchases {
     @Id
@@ -23,4 +26,6 @@ public class Purchases {
     @CreatedDate
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
+
 }

@@ -45,7 +45,7 @@ public class ProductsService {
         }
     }
 
-    public List<Map<String, Object>> getProductWithCount(String id) throws Exception {
+    public Map<String, Object> getProductWithCount(String id) throws Exception {
         try{
             return productsRepository.getProductWithCount(id);
         } catch (Exception e){

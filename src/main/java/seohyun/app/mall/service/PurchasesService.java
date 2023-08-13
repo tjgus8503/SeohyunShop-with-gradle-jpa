@@ -3,22 +3,48 @@ package seohyun.app.mall.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import seohyun.app.mall.models.Carts;
 import seohyun.app.mall.models.Purchases;
-import seohyun.app.mall.repository.ProductsRepository;
-import seohyun.app.mall.repository.PurchasesRepository;
+import seohyun.app.mall.repository.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class PurchasesService {
     private final PurchasesRepository purchasesRepository;
+    private final CartsRepository cartsRepository;
 
     @Transactional
     public void createPurchase(Purchases purchases) throws Exception {
-        try{
+        try {
             purchasesRepository.save(purchases);
+        } catch (Exception e) {
+            throw new Exception(e);
+        }
+    }
+
+    // TODO 배열만드는 부분 정확히 이해해서 다시 하기.
+    @Transactional
+    public void createPurchases(List<Purchases> purchasesList, String decoded) throws Exception {
+        try{
+            List<Purchases> list = new ArrayList<Purchases>();
+
+            for (Purchases purchase : purchasesList) {
+                UUID uuid = UUID.randomUUID();
+                Purchases value = Purchases.builder()
+                        .id(uuid.toString())
+                        .userId(decoded)
+                        .productId(purchase.getProductId())
+                        .count(purchase.getCount())
+                        .build();
+                list.add(value);
+            }
+            purchasesRepository.saveAll(list);
         } catch (Exception e){
             throw new Exception(e);
         }
@@ -26,25 +52,25 @@ public class PurchasesService {
 
     @Transactional
     public void deletePurchase(String id) throws Exception {
-        try{
+        try {
             purchasesRepository.deleteById(id);
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception(e);
         }
     }
 
     public List<Purchases> getByUserId(String userId) throws Exception {
-        try{
+        try {
             return purchasesRepository.findByUserId(userId);
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception(e);
         }
     }
 
     public Purchases checkProduct(String userId, String productId) throws Exception {
-        try{
+        try {
             return purchasesRepository.findByUserIdAndProductId(userId, productId);
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception(e);
         }
     }
