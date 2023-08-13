@@ -94,7 +94,8 @@ public class PurchasesController {
         }
     }
 
-    //
+    // 상품페이지 통한 주문은 리스트 1개면 되고, 장바구니 통한 주문은 리스트 여러개이면 된다.
+    // TODO 상품 재고 조건까지 추가해서 createPurchase 와 합치기.
     @PostMapping("/createpurchases")
     public ResponseEntity<Object> createPurchases(
             @RequestHeader String xauth, @RequestBody List<Purchases> purchasesList) throws Exception {

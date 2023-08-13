@@ -28,7 +28,6 @@ public class PurchasesService {
         }
     }
 
-    // TODO 배열만드는 부분 정확히 이해해서 다시 하기.
     @Transactional
     public void createPurchases(List<Purchases> purchasesList, String decoded) throws Exception {
         try{
