@@ -22,7 +22,7 @@ public class Purchases {
     private String userId;
     @Column(name = "product_id")
     private String productId;
-    private Integer count;
+    private Long count;
     @CreatedDate
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

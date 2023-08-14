@@ -1,6 +1,7 @@
 package seohyun.app.mall.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -21,4 +22,12 @@ public interface ProductsRepository extends JpaRepository<Products, String> {
     Products findOneById(String id);
 
     List<Products> findByCateId(Integer cateId);
+
+    @Modifying(clearAutomatically = true)
+    @Query(value = "update products set stock = stock - :stock where id = :id and stock >= :stock", nativeQuery = true)
+    int subtractStock(@Param("id") String id, @Param("stock") Long stock);
+
+    @Modifying(clearAutomatically = true)
+    @Query(value = "update products set stock = stock + :stock where id = :id", nativeQuery = true)
+    int addStock(@Param("id") String id, @Param("stock") Long stock);
 }

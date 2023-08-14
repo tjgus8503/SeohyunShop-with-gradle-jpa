@@ -14,7 +14,7 @@ import java.util.Date;
 @Entity
 @Table(name = "comments")
 // 쿠팡 형식. 상품 문의가 댓글, 답글이 그에 대한 대댓글 형식.
-public class Comments {
+public class Comments extends DateEntity {
     @Id
     private String id;
     @Column(name = "user_id")
@@ -22,7 +22,4 @@ public class Comments {
     @Column(name = "product_inquiries_id")
     private String productInquiriesId;
     private String content;
-    @CreatedDate
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
 }

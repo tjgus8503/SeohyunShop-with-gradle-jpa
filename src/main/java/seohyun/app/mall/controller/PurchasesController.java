@@ -25,28 +25,26 @@ public class PurchasesController {
     private final CartsService cartsService;
     private final Jwt jwt;
 
-    // 상품 페이지에서 바로 주문 ver
     // 상품 주문
     // TODO 받는사람 정보, 결제 정보
     // 상품 주문은 모든 유저 가능.
     @PostMapping("/createpurchase")
     public ResponseEntity<Object> createPurchase(
-            @RequestHeader String xauth, @RequestBody Purchases purchases) throws Exception {
+            @RequestHeader String xauth, @RequestBody List<Purchases> purchasesList) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
             String decoded = jwt.VerifyToken(xauth);
 
-            Products getById = productsService.getById(purchases.getProductId());
-            if (getById.getStock() == 0 || getById.getStock() < purchases.getCount()) {
-                map.put("result", "failed 상품 재고가 없습니다.");
-            } else {
-                UUID uuid = UUID.randomUUID();
-                purchases.setId(uuid.toString());
-                purchases.setUserId(decoded);
-                purchasesService.createPurchase(purchases);
-                map.put("result", "success 주문이 완료되었습니다.");
+            for (Purchases purchases : purchasesList) {
+                int result = productsService.subtractStock(purchases.getProductId(), purchases.getCount());
+                if (result == 0) {
+                    map.put("result", "failed 상품 재고가 부족합니다.");
+                    return new ResponseEntity<>(map, HttpStatus.OK);
+                }
             }
+            map.put("result", "success 주문이 완료되었습니다.");
+            purchasesService.createPurchases(purchasesList, decoded);
             return new ResponseEntity<>(map, HttpStatus.OK);
         } catch (Exception e){
             Map<String, String> map = new HashMap<>();
@@ -64,10 +62,12 @@ public class PurchasesController {
             Map<String, String> map = new HashMap<>();
 
             jwt.VerifyToken(xauth);
+            Purchases getById = purchasesService.getById(req.get("id"));
+
+            productsService.addStock(getById.getProductId(), getById.getCount());
 
             purchasesService.deletePurchase(req.get("id"));
             map.put("result", "success 취소가 완료되었습니다.");
-
             return new ResponseEntity<>(map, HttpStatus.OK);
         } catch (Exception e){
             Map<String, String> map = new HashMap<>();
@@ -94,28 +94,4 @@ public class PurchasesController {
         }
     }
 
-    // 상품페이지 통한 주문은 리스트 1개면 되고, 장바구니 통한 주문은 리스트 여러개이면 된다.
-    // TODO 상품 재고 조건까지 추가해서 createPurchase 와 합치기.
-    @PostMapping("/createpurchases")
-    public ResponseEntity<Object> createPurchases(
-            @RequestHeader String xauth, @RequestBody List<Purchases> purchasesList) throws Exception {
-        try{
-            Map<String, String> map = new HashMap<>();
-
-            String decoded = jwt.VerifyToken(xauth);
-
-            List<Carts> getByUserId = cartsService.getByUserId(decoded);
-            if (getByUserId != null) {
-                purchasesService.createPurchases(purchasesList, decoded);
-                map.put("result", "success 주문이 완료되었습니다.");
-            } else {
-                map.put("result", "failed 주문 상품이 장바구니에 없습니다.");
-            }
-            return new ResponseEntity<>(map, HttpStatus.OK);
-        } catch (Exception e){
-            Map<String, String> map = new HashMap<>();
-            map.put("error", e.toString());
-            return new ResponseEntity<>(map, HttpStatus.OK);
-        }
-    }
 }

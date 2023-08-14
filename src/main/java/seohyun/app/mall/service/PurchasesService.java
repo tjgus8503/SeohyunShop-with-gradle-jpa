@@ -73,4 +73,12 @@ public class PurchasesService {
             throw new Exception(e);
         }
     }
+
+    public Purchases getById(String id) throws Exception {
+        try{
+            return purchasesRepository.findOneById(id);
+        } catch (Exception e){
+            throw new Exception(e);
+        }
+    }
 }
