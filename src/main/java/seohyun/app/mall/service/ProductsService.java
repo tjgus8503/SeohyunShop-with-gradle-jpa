@@ -63,17 +63,18 @@ public class ProductsService {
     }
 
     @Transactional
-    public void deleteProduct(Products products) throws Exception {
+    public void deleteProduct(String id) throws Exception {
         try{
-            productsRepository.deleteById(products.getId());
+            productsRepository.deleteById(id);
         } catch (Exception e){
             throw new Exception(e);
         }
     }
 
-    public List<Products> getProductsByCate(Integer cateId) throws Exception {
+    public List<Products> getProductsByCate(Integer cateId, Integer pageNumber, Integer pageSize) throws Exception {
         try{
-            return productsRepository.findByCateId(cateId);
+            Pageable pageable = PageRequest.of(pageNumber, pageSize);
+            return productsRepository.findByCateId(cateId, pageable);
         } catch (Exception e){
             throw new Exception(e);
         }
@@ -92,6 +93,16 @@ public class ProductsService {
     public int addStock(String id, Long stock) throws Exception {
         try{
             return productsRepository.addStock(id, stock);
+        } catch (Exception e){
+            throw new Exception(e);
+        }
+    }
+
+    public List<Products> getByUserId(
+            String userId, Integer pageNumber, Integer pageSize) throws Exception {
+        try{
+            Pageable pageable = PageRequest.of(pageNumber, pageSize);
+            return productsRepository.findByUserId(userId, pageable);
         } catch (Exception e){
             throw new Exception(e);
         }

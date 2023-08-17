@@ -1,6 +1,7 @@
 package seohyun.app.mall.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,15 +37,15 @@ public class PurchasesController {
 
             String decoded = jwt.VerifyToken(xauth);
 
-            for (Purchases purchases : purchasesList) {
-                int result = productsService.subtractStock(purchases.getProductId(), purchases.getCount());
+            for (Purchases purchase : purchasesList) {
+                int result = productsService.subtractStock(purchase.getProductId(), purchase.getCount());
                 if (result == 0) {
                     map.put("result", "failed 상품 재고가 부족합니다.");
                     return new ResponseEntity<>(map, HttpStatus.OK);
                 }
             }
-            map.put("result", "success 주문이 완료되었습니다.");
             purchasesService.createPurchases(purchasesList, decoded);
+            map.put("result", "success 주문이 완료되었습니다.");
             return new ResponseEntity<>(map, HttpStatus.OK);
         } catch (Exception e){
             Map<String, String> map = new HashMap<>();
@@ -61,13 +62,15 @@ public class PurchasesController {
         try{
             Map<String, String> map = new HashMap<>();
 
-            jwt.VerifyToken(xauth);
-            Purchases getById = purchasesService.getById(req.get("id"));
-
-            productsService.addStock(getById.getProductId(), getById.getCount());
-
+            String decoded = jwt.VerifyToken(xauth);
+            Purchases getByIdAndUserId = purchasesService.getByIdAndUserId(req.get("id"), decoded);
+            if (getByIdAndUserId == null) {
+                map.put("result", "failed 해당 주문이 없습니다.");
+                return new ResponseEntity<>(map, HttpStatus.OK);
+            }
             purchasesService.deletePurchase(req.get("id"));
             map.put("result", "success 취소가 완료되었습니다.");
+            productsService.addStock(getByIdAndUserId.getProductId(), getByIdAndUserId.getCount());
             return new ResponseEntity<>(map, HttpStatus.OK);
         } catch (Exception e){
             Map<String, String> map = new HashMap<>();
@@ -79,13 +82,15 @@ public class PurchasesController {
     // 주문내역 조회(마이페이지)
     @GetMapping("/getallpurchases")
     public ResponseEntity<Object> getAllPurchases(
-            @RequestHeader String xauth
+            @RequestHeader String xauth,
+            @RequestParam(value = "page", defaultValue = "0") Integer pageNumber,
+            @RequestParam(value = "limit", defaultValue = "10") Integer pageSize
     ) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
             String decoded = jwt.VerifyToken(xauth);
-            List<Purchases> getByUserId = purchasesService.getByUserId(decoded);
+            List<Purchases> getByUserId = purchasesService.getByUserId(decoded, pageNumber, pageSize);
             return new ResponseEntity<>(getByUserId, HttpStatus.OK);
         } catch (Exception e){
             Map<String, String> map = new HashMap<>();

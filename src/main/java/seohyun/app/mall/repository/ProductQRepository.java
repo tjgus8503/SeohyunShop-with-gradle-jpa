@@ -9,4 +9,6 @@ import seohyun.app.mall.models.ProductInquiries;
 public interface ProductQRepository extends JpaRepository<ProductInquiries, String> {
 
 ProductInquiries findOneById(String id);
+
+ProductInquiries findOneByIdAndUserId(String id, String userId);
 }

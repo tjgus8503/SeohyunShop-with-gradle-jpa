@@ -1,5 +1,6 @@
 package seohyun.app.mall.repository;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -14,6 +15,7 @@ import java.util.Map;
 public interface ProductsRepository extends JpaRepository<Products, String> {
 
 
+
     @Query(value = "select products.*, count(reviews.product_id)as reviews_count,count(product_inquiries.product_id)as inquiries_count from products \n" +
             "left join reviews on products.id = reviews.product_id left join product_inquiries on products.id = product_inquiries.product_id\n" +
             "where products.id =:id", nativeQuery = true)
@@ -21,7 +23,9 @@ public interface ProductsRepository extends JpaRepository<Products, String> {
 
     Products findOneById(String id);
 
-    List<Products> findByCateId(Integer cateId);
+    List<Products> findByCateId(Integer cateId, Pageable pageable);
+
+    List<Products> findByUserId(String userId, Pageable pageable);
 
     @Modifying(clearAutomatically = true)
     @Query(value = "update products set stock = stock - :stock where id = :id and stock >= :stock", nativeQuery = true)
@@ -30,4 +34,6 @@ public interface ProductsRepository extends JpaRepository<Products, String> {
     @Modifying(clearAutomatically = true)
     @Query(value = "update products set stock = stock + :stock where id = :id", nativeQuery = true)
     int addStock(@Param("id") String id, @Param("stock") Long stock);
+
+    // Todo getProductWithCount 서브쿼리로 수정.
 }

@@ -9,6 +9,8 @@ public interface ReviewsRepository extends JpaRepository<Reviews, String> {
 
     Reviews findOneById(String id);
 
+    Reviews findOneByIdAndUserId(String id, String userId);
+
     void deleteByIdAndUserId(String id, String userId);
 
 }

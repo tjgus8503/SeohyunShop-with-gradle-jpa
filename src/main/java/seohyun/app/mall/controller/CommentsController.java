@@ -23,6 +23,7 @@ public class CommentsController {
     private final CommentsService commentsService;
     private final ProductQService productQService;
     private final ProductsService productsService;
+    private final RecommentsService recommentsService;
     private final Jwt jwt;
 
     // 상품문의 답변 등록
@@ -35,24 +36,21 @@ public class CommentsController {
 
             String decoded = jwt.VerifyToken(xauth);
 
-//            String id = (String) req.get("productId");
             Products getById = productsService.getById(req.get("productId"));
-
-            if (getById.getUserId().equals(decoded)) {
-
-                UUID uuid = UUID.randomUUID();
-                // 디비에 저장될 comments
-                Comments comments = new Comments();
-                comments.setId(uuid.toString());
-                comments.setUserId(decoded);
-                comments.setProductInquiriesId(req.get("productInquiriesId"));
-                comments.setContent(req.get("content"));
-
-                commentsService.createComment(comments);
-                map.put("result", "success 등록이 완료되었습니다.");
-            } else {
+            if (!(getById.getUserId().equals(decoded))) {
                 map.put("result", "failed 등록 권한이 없습니다.");
+                return new ResponseEntity<>(map, HttpStatus.OK);
             }
+            UUID uuid = UUID.randomUUID();
+            // 디비에 저장될 comments
+            Comments comments = new Comments();
+            comments.setId(uuid.toString());
+            comments.setUserId(decoded);
+            comments.setProductInquiriesId(req.get("productInquiriesId"));
+            comments.setContent(req.get("content"));
+
+            commentsService.createComment(comments);
+            map.put("result", "success 등록이 완료되었습니다.");
             return new ResponseEntity<>(map, HttpStatus.OK);
         } catch (Exception e){
             Map<String, String> map = new HashMap<>();
@@ -62,23 +60,23 @@ public class CommentsController {
     }
 
     // 상품 문의 답변 수정
+    // 본인(답변 단 판매자)만 수정 가능
     @PostMapping("/updatecomment")
     public ResponseEntity<Object> updateComment(
-            @RequestHeader String xauth, @RequestBody Comments comments
-    ) throws Exception {
+            @RequestHeader String xauth, @RequestBody Comments comments) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
             String decoded = jwt.VerifyToken(xauth);
 
-            Comments getById = commentsService.getById(comments.getId());
-            if (getById.getUserId().equals(decoded)) {
-                comments.setUserId(decoded);
-                commentsService.updateComment(comments);
-                map.put("result", "success 수정이 완료되었습니다.");
-            } else {
-                map.put("result", "failed 수정 권한이 없습니다.");
+            Comments getByIdAndUserId = commentsService.getByIdAndUserId(comments.getId(), decoded);
+            if (getByIdAndUserId == null) {
+                map.put("result", "failed 해당 답변이 없습니다.");
+                return new ResponseEntity<>(map, HttpStatus.OK);
             }
+            comments.setUserId(decoded);
+            commentsService.updateComment(comments);
+            map.put("result", "success 수정이 완료되었습니다.");
             return new ResponseEntity<>(map, HttpStatus.OK);
         } catch (Exception e){
             Map<String, String> map = new HashMap<>();
@@ -88,6 +86,7 @@ public class CommentsController {
     }
 
     // 상품 문의 답변 삭제
+    // 본인(답변 단 판매자)만 삭제 가능
     @PostMapping("/deletecomment")
     public ResponseEntity<Object> deleteComment(
             @RequestHeader String xauth, @RequestBody Map<String, String> req) throws Exception {
@@ -96,14 +95,113 @@ public class CommentsController {
 
             String decoded = jwt.VerifyToken(xauth);
 
-            Comments getById = commentsService.getById(req.get("id"));
-            if (getById.getUserId().equals(decoded)) {
-                commentsService.deleteComment(req.get("id"));
-                map.put("result", "success 삭제가 완료되었습니다.");
-            } else {
-                map.put("result", "failed 삭제 권한이 없습니다.");
+            Comments getByIdAndUserId = commentsService.getByIdAndUserId(req.get("id"), decoded);
+            if (getByIdAndUserId == null) {
+                map.put("result", "failed 해당 답변이 없습니다.");
+                return new ResponseEntity<>(map, HttpStatus.OK);
             }
+            commentsService.deleteComment(req.get("id"));
+            map.put("result", "success 삭제가 완료되었습니다.");
             return new ResponseEntity<>(map, HttpStatus.OK);
+        } catch (Exception e){
+            Map<String, String> map = new HashMap<>();
+            map.put("error", e.toString());
+            return new ResponseEntity<>(map, HttpStatus.OK);
+        }
+    }
+
+    // 상품문의 답변의 댓글(대댓글) 등록
+    @PostMapping("/createrecomment")
+    public ResponseEntity<Object> createReComment(
+            @RequestHeader String xauth, @RequestBody Map<String, String> req
+    ) throws Exception {
+        try{
+            Map<String, String> map = new HashMap<>();
+
+            String decoded = jwt.VerifyToken(xauth);
+
+            ProductInquiries getById = productQService.getById(req.get("productInquiriesId"));
+            if (!getById.getUserId().equals(decoded)) {
+                map.put("result", "failed 등록 권한이 없습니다.");
+                return new ResponseEntity<>(map, HttpStatus.OK);
+            }
+            UUID uuid = UUID.randomUUID();
+            ReComments reComments = new ReComments();
+            reComments.setId(uuid.toString());
+            reComments.setUserId(decoded);
+            reComments.setCommentsId(req.get("commentsId"));
+            reComments.setContent(req.get("content"));
+            recommentsService.createReComment(reComments);
+            map.put("result", "success 등록이 완료되었습니다.");
+            return new ResponseEntity<>(map, HttpStatus.OK);
+        } catch (Exception e){
+            Map<String, String> map = new HashMap<>();
+            map.put("error", e.toString());
+            return new ResponseEntity<>(map, HttpStatus.OK);
+        }
+    }
+
+    // 대댓글 수정
+    // 대댓글 올린 본인만 가능.
+    @PostMapping("/updaterecomment")
+    public ResponseEntity<Object> updateReComment(
+            @RequestHeader String xauth, @RequestBody ReComments reComments
+    ) throws Exception {
+        try{
+            Map<String, String> map = new HashMap<>();
+
+            String decoded = jwt.VerifyToken(xauth);
+
+            ReComments getByIdAndUserId = recommentsService.getByIdAndUserId(reComments.getId(), decoded);
+            if (getByIdAndUserId == null) {
+                map.put("result", "failed 해당 댓글이 없습니다.");
+                return new ResponseEntity<>(map, HttpStatus.OK);
+            }
+            reComments.setUserId(decoded);
+            recommentsService.updateReComment(reComments);
+            map.put("result", "success 수정이 완료되었습니다.");
+            return new ResponseEntity<>(map, HttpStatus.OK);
+        } catch (Exception e){
+            Map<String, String> map = new HashMap<>();
+            map.put("error", e.toString());
+            return new ResponseEntity<>(map, HttpStatus.OK);
+        }
+    }
+
+    // 대댓글 삭제.
+    // 대댓글 올린 본인만 가능.
+    @PostMapping("/deleterecomment")
+    public ResponseEntity<Object> deleteReComment(
+            @RequestHeader String xauth, @RequestBody Map<String, String> req
+    ) throws Exception {
+        try{
+            Map<String, String> map = new HashMap<>();
+
+            String decoded = jwt.VerifyToken(xauth);
+
+            ReComments getByIdAndUserId = recommentsService.getByIdAndUserId(req.get("id"), decoded);
+            if (getByIdAndUserId == null) {
+                map.put("result", "failed 해당 댓글이 없습니다.");
+                return new ResponseEntity<>(map, HttpStatus.OK);
+            }
+            recommentsService.deleteReComment(req.get("id"));
+            map.put("result", "success 삭제가 완료되었습니다.");
+            return new ResponseEntity<>(map, HttpStatus.OK);
+        } catch (Exception e){
+            Map<String, String> map = new HashMap<>();
+            map.put("error", e.toString());
+            return new ResponseEntity<>(map, HttpStatus.OK);
+        }
+    }
+
+    // 대댓글 조회
+    @GetMapping("/getrecomment")
+    public ResponseEntity<Object> getReComment(@RequestParam String commentsId) throws Exception {
+        try{
+            Map<String, String> map = new HashMap<>();
+
+            ReComments getReComment = recommentsService.getReComment(commentsId);
+            return new ResponseEntity<>(getReComment, HttpStatus.OK);
         } catch (Exception e){
             Map<String, String> map = new HashMap<>();
             map.put("error", e.toString());

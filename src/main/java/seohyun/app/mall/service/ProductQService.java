@@ -21,13 +21,14 @@ public class ProductQService {
         }
     }
 
-    public ProductInquiries getById(String id) throws Exception {
+    public ProductInquiries getByIdAndUserId(String id, String userId) throws Exception {
         try{
-            return productQRepository.findOneById(id);
+            return productQRepository.findOneByIdAndUserId(id, userId);
         } catch (Exception e){
             throw new Exception(e);
         }
     }
+
     @Transactional
     public void updateProductQ(ProductInquiries productInquiries) throws Exception {
         try{
@@ -41,6 +42,14 @@ public class ProductQService {
     public void deleteProductQ(String id) throws Exception {
         try{
             productQRepository.deleteById(id);
+        } catch (Exception e){
+            throw new Exception(e);
+        }
+    }
+
+    public ProductInquiries getById(String id) throws Exception {
+        try{
+            return productQRepository.findOneById(id);
         } catch (Exception e){
             throw new Exception(e);
         }

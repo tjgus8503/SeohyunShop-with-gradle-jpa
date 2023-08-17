@@ -1,6 +1,9 @@
 package seohyun.app.mall.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import seohyun.app.mall.models.Carts;
@@ -41,9 +44,10 @@ public class CartsService {
         }
     }
 
-    public List<Carts> getByUserId(String userId) throws Exception {
+    public Page<Carts> getByUserId(String userId, Integer pageNumber, Integer pageSize) throws Exception {
         try{
-            return cartsRepository.findByUserId(userId);
+            Pageable pageable = PageRequest.of(pageNumber, pageSize);
+            return cartsRepository.findByUserId(userId, pageable);
         } catch (Exception e){
             throw new Exception(e);
         }

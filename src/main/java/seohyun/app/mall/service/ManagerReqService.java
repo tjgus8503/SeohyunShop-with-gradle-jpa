@@ -35,6 +35,15 @@ public class ManagerReqService {
         }
     }
 
+    @Transactional
+    public void deleteManagerReq(String id, String userId) throws Exception {
+        try{
+            managerReqRepository.deleteByIdAndUserId(id, userId);
+        } catch (Exception e){
+            throw new Exception(e);
+        }
+    }
+
     public Page<ManagerRequests> getAllManagerReq(Integer pageNumber, Integer pageSize) throws Exception {
         try{
             Pageable pageable = PageRequest.of(pageNumber, pageSize);
@@ -43,4 +52,5 @@ public class ManagerReqService {
             throw new Exception(e);
         }
     }
+
 }

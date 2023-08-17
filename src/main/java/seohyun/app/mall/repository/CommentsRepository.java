@@ -7,4 +7,6 @@ import seohyun.app.mall.models.Comments;
 @Repository
 public interface CommentsRepository extends JpaRepository<Comments, String> {
     Comments findOneById(String id);
+
+    Comments findOneByIdAndUserId(String id, String userId);
 }

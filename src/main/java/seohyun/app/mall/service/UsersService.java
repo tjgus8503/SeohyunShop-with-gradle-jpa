@@ -62,5 +62,12 @@ public class UsersService {
             throw new Exception(e);
         }
     }
-    // TODO 겹치는 메소드 정리.
+    @Transactional
+    public int updateRole(String userId) throws Exception {
+        try{
+            return usersRepository.updateRole(userId);
+        } catch (Exception e){
+            throw new Exception(e);
+        }
+    }
 }

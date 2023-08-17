@@ -64,14 +64,14 @@ public class ProductQController {
 
             String decoded = jwt.VerifyToken(xauth);
 
-            ProductInquiries getById = productQService.getById(productInquiries.getId());
-            if (getById.getUserId().equals(decoded)) {
-                productInquiries.setUserId(decoded);
-                productQService.updateProductQ(productInquiries);
-                map.put("result", "success 수정이 완료되었습니다.");
-            } else {
-                map.put("result", "failed 수정 권한이 없습니다.");
+            ProductInquiries getByIdAndUserId = productQService.getByIdAndUserId(productInquiries.getId(), decoded);
+            if (getByIdAndUserId == null) {
+                map.put("result", "failed 해당 문의글이 없습니다.");
+                return new ResponseEntity<>(map, HttpStatus.OK);
             }
+            productInquiries.setUserId(decoded);
+            productQService.updateProductQ(productInquiries);
+            map.put("result", "success 수정이 완료되었습니다.");
             return new ResponseEntity<>(map, HttpStatus.OK);
         } catch (Exception e){
             Map<String, String> map = new HashMap<>();
@@ -81,22 +81,22 @@ public class ProductQController {
     }
 
     // 상품 문의 삭제
-    // 일반 유저만 삭제 가능(본인)
+    // 본인만 가능
     @PostMapping("/deleteproductq")
     public ResponseEntity<Object> deleteProductQ(
-            @RequestHeader String xauth, @RequestBody Map<String, String> req
-    ) throws Exception {
+            @RequestHeader String xauth, @RequestBody Map<String, String> req) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
             String decoded = jwt.VerifyToken(xauth);
-            ProductInquiries getById = productQService.getById(req.get("id"));
-            if (getById.getUserId().equals(decoded)) {
-                productQService.deleteProductQ(req.get("id"));
-                map.put("result", "success 삭제가 완료되었습니다.");
-            } else {
-                map.put("result", "failed 삭제 권한이 없습니다.");
+
+            ProductInquiries getByIdAndUserId = productQService.getByIdAndUserId(req.get("id"), decoded);
+            if (getByIdAndUserId == null) {
+                map.put("result", "failed 해당 문의글이 없습니다.");
+                return new ResponseEntity<>(map, HttpStatus.OK);
             }
+            productQService.deleteProductQ(req.get("id"));
+            map.put("result", "success 삭제가 완료되었습니다.");
             return new ResponseEntity<>(map, HttpStatus.OK);
         } catch (Exception e){
             Map<String, String> map = new HashMap<>();

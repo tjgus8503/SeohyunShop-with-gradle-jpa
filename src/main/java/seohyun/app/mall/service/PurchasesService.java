@@ -1,6 +1,9 @@
 package seohyun.app.mall.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import seohyun.app.mall.models.Carts;
@@ -17,7 +20,6 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class PurchasesService {
     private final PurchasesRepository purchasesRepository;
-    private final CartsRepository cartsRepository;
 
     @Transactional
     public void createPurchase(Purchases purchases) throws Exception {
@@ -31,7 +33,7 @@ public class PurchasesService {
     @Transactional
     public void createPurchases(List<Purchases> purchasesList, String decoded) throws Exception {
         try{
-            List<Purchases> list = new ArrayList<Purchases>();
+            List<Purchases> list = new ArrayList<>();
 
             for (Purchases purchase : purchasesList) {
                 UUID uuid = UUID.randomUUID();
@@ -58,9 +60,10 @@ public class PurchasesService {
         }
     }
 
-    public List<Purchases> getByUserId(String userId) throws Exception {
+    public List<Purchases> getByUserId(String userId, Integer pageNumber, Integer pageSize) throws Exception {
         try {
-            return purchasesRepository.findByUserId(userId);
+            Pageable pageable = PageRequest.of(pageNumber, pageSize);
+            return purchasesRepository.findByUserId(userId, pageable);
         } catch (Exception e) {
             throw new Exception(e);
         }
@@ -74,9 +77,9 @@ public class PurchasesService {
         }
     }
 
-    public Purchases getById(String id) throws Exception {
+    public Purchases getByIdAndUserId(String id, String userId) throws Exception {
         try{
-            return purchasesRepository.findOneById(id);
+            return purchasesRepository.findByIdAndUserId(id, userId);
         } catch (Exception e){
             throw new Exception(e);
         }

@@ -159,13 +159,16 @@ public class UsersController {
 
     // 마이페이지 조회
     // TODO 마이페이지에 들어갈 정보 생각하기.
-    @GetMapping("/getuser")
-    public ResponseEntity<Object> getUser() throws Exception {
+    @GetMapping("/getuserinfo")
+    public ResponseEntity<Object> getUserInfo(
+            @RequestHeader String xauth
+    ) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
-
-            return new ResponseEntity<>(map, HttpStatus.OK);
+            String decoded = jwt.VerifyToken(xauth);
+            Users userinfo = usersService.findUserId(decoded);
+            return new ResponseEntity<>(userinfo, HttpStatus.OK);
         } catch (Exception e){
             Map<String, String> map = new HashMap<>();
             map.put("error", e.toString());
@@ -173,5 +176,4 @@ public class UsersController {
         }
     }
 
-    // TODO 이메일 인증, 휴대폰 인증
 }

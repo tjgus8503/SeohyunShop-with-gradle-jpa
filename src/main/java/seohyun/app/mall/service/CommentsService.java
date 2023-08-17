@@ -21,9 +21,9 @@ public class CommentsService {
         }
     }
 
-    public Comments getById(String id) throws Exception {
+    public Comments getByIdAndUserId(String id, String userId) throws Exception {
         try{
-            return commentsRepository.findOneById(id);
+            return commentsRepository.findOneByIdAndUserId(id, userId);
         } catch (Exception e){
             throw new Exception(e);
         }

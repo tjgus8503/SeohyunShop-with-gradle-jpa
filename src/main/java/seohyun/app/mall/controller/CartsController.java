@@ -1,6 +1,7 @@
 package seohyun.app.mall.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -57,14 +58,16 @@ public class CartsController {
     // 마이페이지 - 장바구니 조회
     @GetMapping("/getallcarts")
     public ResponseEntity<Object> getAllCarts(
-            @RequestHeader String xauth
+            @RequestHeader String xauth,
+            @RequestParam(value = "page", defaultValue = "0") Integer pageNumber,
+            @RequestParam(value = "limit", defaultValue = "10") Integer pageSize
     ) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
             String decoded = jwt.VerifyToken(xauth);
 
-            List<Carts> getByUserId = cartsService.getByUserId(decoded);
+            Page<Carts> getByUserId = cartsService.getByUserId(decoded, pageNumber, pageSize);
             return new ResponseEntity<>(getByUserId, HttpStatus.OK);
         } catch (Exception e){
             Map<String, String> map = new HashMap<>();
