@@ -30,18 +30,22 @@ public class ReviewsController {
     // 본인이 구매한 상품에 후기를 등록할 수 있다.
     @PostMapping("/createreview")
     public ResponseEntity<Object> createReview(
-            @RequestHeader String xauth, @RequestBody Reviews reviews
+            @RequestHeader String xauth, @RequestBody Map<String, String> req
             ) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
             String decoded = jwt.VerifyToken(xauth);
 
-            Purchases checkProduct = purchasesService.checkProduct(decoded, reviews.getProductId());
+            Purchases checkProduct = purchasesService.getByIdAndUserId(req.get("purchasesId"),decoded);
             if (checkProduct != null) {
                 UUID uuid = UUID.randomUUID();
+                Reviews reviews = new Reviews();
                 reviews.setId(uuid.toString());
                 reviews.setUserId(decoded);
+                reviews.setProductId(req.get("productId"));
+                reviews.setContent(req.get("content"));
+                reviews.setImageUrl(req.get("imageUrl"));
                 reviewsService.createReview(reviews);
                 map.put("result", "success 등록이 완료되었습니다.");
             } else {
@@ -89,8 +93,20 @@ public class ReviewsController {
         try{
             Map<String, String> map = new HashMap<>();
             String decoded =  jwt.VerifyToken(xauth);
-            reviewsService.deleteReview(req.get("id"), decoded);
+
+            Reviews getByIdAndUserId = reviewsService.getByIdAndUserId(req.get("id"), decoded);
+            if (getByIdAndUserId == null) {
+                map.put("result", "failed 해당 게시글이 없습니다.");
+                return new ResponseEntity<>(map, HttpStatus.OK);
+            }
+            reviewsService.deleteReview(req.get("id"));
             map.put("result", "success 삭제가 완료되었습니다.");
+
+            // 해당후기의 답변 삭제
+            ReviewComments rc = reviewsService.getByReviewsId(req.get("id"));
+            if (rc != null) {
+                reviewsService.deleteComment(rc.getId());
+            }
 
             return new ResponseEntity<>(map, HttpStatus.OK);
         } catch (Exception e){
@@ -167,7 +183,13 @@ public class ReviewsController {
             Map<String, String> map = new HashMap<>();
 
             String decoded = jwt.VerifyToken(xauth);
-            reviewsService.deleteComment(req.get("id"), decoded);
+
+            ReviewComments findByIdAndUserId = reviewsService.findByIdAndUserId(req.get("id"), decoded);
+            if (findByIdAndUserId == null) {
+                map.put("result", "failed 해당 답변이 없습니다.");
+                return new ResponseEntity<>(map, HttpStatus.OK);
+            }
+            reviewsService.deleteComment(req.get("id"));
             map.put("result", "success 삭제가 완료되었습니다.");
             return new ResponseEntity<>(map, HttpStatus.OK);
         } catch (Exception e){

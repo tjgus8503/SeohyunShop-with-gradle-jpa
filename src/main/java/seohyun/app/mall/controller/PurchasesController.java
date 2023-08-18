@@ -36,13 +36,10 @@ public class PurchasesController {
             Map<String, String> map = new HashMap<>();
 
             String decoded = jwt.VerifyToken(xauth);
-
-            for (Purchases purchase : purchasesList) {
-                int result = productsService.subtractStock(purchase.getProductId(), purchase.getCount());
-                if (result == 0) {
-                    map.put("result", "failed 상품 재고가 부족합니다.");
-                    return new ResponseEntity<>(map, HttpStatus.OK);
-                }
+            List<Products> result = purchasesService.updateStock(purchasesList);
+            if (result == null) {
+                map.put("result", "failed 상품 재고가 없습니다.");
+                return new ResponseEntity<>(map, HttpStatus.OK);
             }
             purchasesService.createPurchases(purchasesList, decoded);
             map.put("result", "success 주문이 완료되었습니다.");

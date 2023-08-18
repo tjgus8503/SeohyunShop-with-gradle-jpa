@@ -46,4 +46,12 @@ public class CommentsService {
             throw new Exception(e);
         }
     }
+
+    public Comments getByProductQId(String productQId) throws Exception {
+        try{
+            return commentsRepository.findOneByProductInquiriesId(productQId);
+        } catch (Exception e){
+            throw new Exception(e);
+        }
+    }
 }

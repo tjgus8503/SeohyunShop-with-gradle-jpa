@@ -8,6 +8,8 @@ import seohyun.app.mall.models.ReviewComments;
 import seohyun.app.mall.models.Reviews;
 import seohyun.app.mall.repository.*;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -42,9 +44,9 @@ public class ReviewsService {
     }
 
     @Transactional
-    public void deleteReview(String id, String userId) throws Exception {
+    public void deleteReview(String id) throws Exception {
         try{
-            reviewsRepository.deleteByIdAndUserId(id, userId);
+            reviewsRepository.deleteById(id);
         } catch (Exception e){
             throw new Exception(e);
         }
@@ -77,9 +79,25 @@ public class ReviewsService {
     }
 
     @Transactional
-    public void deleteComment(String id, String userId) throws Exception {
+    public void deleteComment(String id) throws Exception {
         try{
-            reviewCommentsRepository.deleteByIdAndUserId(id, userId);
+            reviewCommentsRepository.deleteById(id);
+        } catch (Exception e){
+            throw new Exception(e);
+        }
+    }
+
+    public List<Reviews> getByProductId(String productId) throws Exception {
+        try{
+            return reviewsRepository.findByProductId(productId);
+        } catch (Exception e){
+            throw new Exception(e);
+        }
+    }
+
+    public ReviewComments getByReviewsId(String reviewsId) throws Exception {
+        try{
+            return reviewCommentsRepository.findOneByReviewsId(reviewsId);
         } catch (Exception e){
             throw new Exception(e);
         }

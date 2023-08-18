@@ -81,15 +81,6 @@ public class ProductsService {
     }
 
     @Transactional
-    public int subtractStock(String id, Long stock) throws Exception {
-        try{
-            return productsRepository.subtractStock(id, stock);
-        } catch (Exception e){
-            throw new Exception(e);
-        }
-    }
-
-    @Transactional
     public int addStock(String id, Long stock) throws Exception {
         try{
             return productsRepository.addStock(id, stock);

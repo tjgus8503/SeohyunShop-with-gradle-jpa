@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import seohyun.app.mall.models.Carts;
+import seohyun.app.mall.models.Products;
 import seohyun.app.mall.models.Purchases;
 import seohyun.app.mall.repository.*;
 
@@ -20,15 +21,28 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class PurchasesService {
     private final PurchasesRepository purchasesRepository;
+    private final ProductsRepository productsRepository;
 
-    @Transactional
-    public void createPurchase(Purchases purchases) throws Exception {
-        try {
-            purchasesRepository.save(purchases);
-        } catch (Exception e) {
+
+
+    public List<Products> updateStock(List<Purchases> purchasesList) throws Exception {
+        try{
+            List<Products> list = new ArrayList<>();
+            for (Purchases purchase : purchasesList) {
+                Products products = productsRepository.getProductByIdAndStock(purchase.getProductId(), purchase.getCount());
+                if (products == null) {
+                    return null;
+                }
+                products.setStock((int) (products.getStock() - purchase.getCount()));
+                list.add(products);
+
+;            }
+             return productsRepository.saveAll(list);
+        } catch (Exception e){
             throw new Exception(e);
         }
     }
+
 
     @Transactional
     public void createPurchases(List<Purchases> purchasesList, String decoded) throws Exception {
@@ -64,14 +78,6 @@ public class PurchasesService {
         try {
             Pageable pageable = PageRequest.of(pageNumber, pageSize);
             return purchasesRepository.findByUserId(userId, pageable);
-        } catch (Exception e) {
-            throw new Exception(e);
-        }
-    }
-
-    public Purchases checkProduct(String userId, String productId) throws Exception {
-        try {
-            return purchasesRepository.findByUserIdAndProductId(userId, productId);
         } catch (Exception e) {
             throw new Exception(e);
         }

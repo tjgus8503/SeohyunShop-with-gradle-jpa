@@ -6,11 +6,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import seohyun.app.mall.models.ProductInquiries;
 import seohyun.app.mall.models.Products;
+import seohyun.app.mall.models.Reviews;
 import seohyun.app.mall.models.Users;
-import seohyun.app.mall.service.ProductsService;
-import seohyun.app.mall.service.UsersService;
-import seohyun.app.mall.utils.Jwt;
+import seohyun.app.mall.service.*;
+import seohyun.app.mall.utils.*;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -25,7 +26,10 @@ import java.util.*;
 public class ProductsController {
     private final ProductsService productsService;
     private final UsersService usersService;
+    private final ProductQService productQService;
+    private final ReviewsService reviewsService;
     private final Jwt jwt;
+    private final seohyun.app.mall.utils.File file;
 
     // 상품 등록
     // role = 2 만 상품 등록 가능.
@@ -197,12 +201,30 @@ public class ProductsController {
             productsService.deleteProduct(deleteReq.get("id"));
             map.put("result", "success 삭제가 완료되었습니다.");
 
-            if (priorImage != null) {
-                List<String> test = List.of(priorImage.split(","));
-                for (String image : test) {
-                    Files.delete(Path.of(image));
+            new Thread() {
+                public void run() {
+                    try{
+                        file.DeleteFile(priorImage);
+                    } catch (Exception e){
+                        // 에러의 발생근원지를 찾아서 단계별로 에러 출력.
+                        e.printStackTrace();
+                    }
                 }
+            }.start();
+
+            // 해당상품 관련 문의글 삭제
+            List<ProductInquiries> productQ = productQService.getByProductId(deleteReq.get("id"));
+            if (productQ != null) {
+                for (ProductInquiries pi : productQ) {
+                productQService.deleteProductQ(pi.getId());}
             }
+            // 해당상품 관련 후기글 삭제
+            List<Reviews> reviews = reviewsService.getByProductId(deleteReq.get("id"));
+            if (reviews != null) {
+                for (Reviews r : reviews) {
+                reviewsService.deleteReview(r.getId());}
+            }
+
             return new ResponseEntity<>(map, HttpStatus.OK);
         } catch (Exception e) {
             Map<String, String> map = new HashMap<>();

@@ -102,6 +102,12 @@ public class CommentsController {
             }
             commentsService.deleteComment(req.get("id"));
             map.put("result", "success 삭제가 완료되었습니다.");
+
+            // 해당답변의 댓글(대댓글) 삭제.
+            ReComments reComment = recommentsService.getByCommentsId(req.get("id"));
+            if (reComment != null) {
+                recommentsService.deleteReComment(reComment.getId());
+            }
             return new ResponseEntity<>(map, HttpStatus.OK);
         } catch (Exception e){
             Map<String, String> map = new HashMap<>();

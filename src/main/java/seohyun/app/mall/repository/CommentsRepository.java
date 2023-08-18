@@ -9,4 +9,6 @@ public interface CommentsRepository extends JpaRepository<Comments, String> {
     Comments findOneById(String id);
 
     Comments findOneByIdAndUserId(String id, String userId);
+
+    Comments findOneByProductInquiriesId(String productInquiriesId);
 }

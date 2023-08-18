@@ -54,4 +54,12 @@ public class RecommentsService {
             throw new Exception(e);
         }
     }
+
+    public ReComments getByCommentsId(String commentsId) throws Exception{
+        try{
+            return reCommentsRepository.findOneByCommentsId(commentsId);
+        } catch (Exception e){
+            throw new Exception(e);
+        }
+    }
 }

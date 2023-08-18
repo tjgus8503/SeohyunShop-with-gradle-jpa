@@ -4,10 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import seohyun.app.mall.models.Comments;
 import seohyun.app.mall.models.ProductInquiries;
 import seohyun.app.mall.models.Users;
-import seohyun.app.mall.service.ProductQService;
-import seohyun.app.mall.service.UsersService;
+import seohyun.app.mall.service.*;
 import seohyun.app.mall.utils.Jwt;
 
 import java.util.HashMap;
@@ -21,6 +21,7 @@ import java.util.UUID;
 public class ProductQController {
     private final ProductQService productQService;
     private final UsersService usersService;
+    private final CommentsService commentsService;
     private final Jwt jwt;
 
     // 상품 문의 등록
@@ -97,6 +98,13 @@ public class ProductQController {
             }
             productQService.deleteProductQ(req.get("id"));
             map.put("result", "success 삭제가 완료되었습니다.");
+
+            // 해당문의의 답변 삭제
+            Comments comment = commentsService.getByProductQId(req.get("id"));
+            if (comment != null) {
+                commentsService.deleteComment(comment.getId());
+            }
+
             return new ResponseEntity<>(map, HttpStatus.OK);
         } catch (Exception e){
             Map<String, String> map = new HashMap<>();

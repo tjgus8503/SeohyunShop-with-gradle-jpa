@@ -6,6 +6,8 @@ import org.springframework.transaction.annotation.Transactional;
 import seohyun.app.mall.models.ProductInquiries;
 import seohyun.app.mall.repository.ProductQRepository;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -47,6 +49,14 @@ public class ProductQService {
         }
     }
 
+    public List<ProductInquiries> getByProductId(String productId) throws Exception {
+        try{
+            return productQRepository.findByProductId(productId);
+        } catch (Exception e){
+            throw new Exception(e);
+        }
+    }
+
     public ProductInquiries getById(String id) throws Exception {
         try{
             return productQRepository.findOneById(id);
@@ -54,5 +64,4 @@ public class ProductQService {
             throw new Exception(e);
         }
     }
-
 }

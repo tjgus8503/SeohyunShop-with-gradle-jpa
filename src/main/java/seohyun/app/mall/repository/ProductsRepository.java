@@ -27,9 +27,9 @@ public interface ProductsRepository extends JpaRepository<Products, String> {
 
     List<Products> findByUserId(String userId, Pageable pageable);
 
-    @Modifying(clearAutomatically = true)
-    @Query(value = "update products set stock = stock - :stock where id = :id and stock >= :stock", nativeQuery = true)
-    int subtractStock(@Param("id") String id, @Param("stock") Long stock);
+
+    @Query(value = "select * from products where id = :id and stock >= :stock", nativeQuery = true)
+    Products getProductByIdAndStock(@Param("id") String id, @Param("stock") Long stock);
 
     @Modifying(clearAutomatically = true)
     @Query(value = "update products set stock = stock + :stock where id = :id", nativeQuery = true)
