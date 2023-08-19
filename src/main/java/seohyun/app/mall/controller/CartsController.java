@@ -12,7 +12,6 @@ import seohyun.app.mall.service.ProductsService;
 import seohyun.app.mall.utils.Jwt;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -29,11 +28,11 @@ public class CartsController {
     // 상품 재고가 0개 or 상품의 재고보다 장바구니에 담으려는 상품 수가 많으면 장바구니 등록 불가.
     @PostMapping("/createcart")
     public ResponseEntity<Object> createCart(
-            @RequestHeader String xauth, @RequestBody Carts carts) throws Exception {
+            @RequestHeader String authorization, @RequestBody Carts carts) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
-            String decoded = jwt.VerifyToken(xauth);
+            String decoded = jwt.VerifyToken(authorization);
 
             Products getById = productsService.getById(carts.getProductId());
             if (getById.getStock() == 0 || getById.getStock() < carts.getCount()) {
@@ -58,14 +57,14 @@ public class CartsController {
     // 마이페이지 - 장바구니 조회
     @GetMapping("/getallcarts")
     public ResponseEntity<Object> getAllCarts(
-            @RequestHeader String xauth,
+            @RequestHeader String authorization,
             @RequestParam(value = "page", defaultValue = "0") Integer pageNumber,
             @RequestParam(value = "limit", defaultValue = "10") Integer pageSize
     ) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
-            String decoded = jwt.VerifyToken(xauth);
+            String decoded = jwt.VerifyToken(authorization);
 
             Page<Carts> getByUserId = cartsService.getByUserId(decoded, pageNumber, pageSize);
             return new ResponseEntity<>(getByUserId, HttpStatus.OK);
@@ -80,11 +79,11 @@ public class CartsController {
     // 장바구니 수정
     @PostMapping("/updatecart")
     public ResponseEntity<Object> updateCart(
-            @RequestHeader String xauth, @RequestBody Carts carts) throws Exception {
+            @RequestHeader String authorization, @RequestBody Carts carts) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
-            String decoded = jwt.VerifyToken(xauth);
+            String decoded = jwt.VerifyToken(authorization);
 
             Products getById = productsService.getById(carts.getProductId());
             if (getById.getStock() == 0 || getById.getStock() < carts.getCount()) {
@@ -105,11 +104,11 @@ public class CartsController {
     // 장바구니 삭제
     @PostMapping("/deletecart")
     public ResponseEntity<Object> deleteCart(
-            @RequestHeader String xauth, @RequestBody Map<String, String> req) throws Exception {
+            @RequestHeader String authorization, @RequestBody Map<String, String> req) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
-            String decoded = jwt.VerifyToken(xauth);
+            String decoded = jwt.VerifyToken(authorization);
 
             cartsService.deleteCart(req.get("id"), decoded);
             map.put("result", "success 삭제가 완료되었습니다.");
@@ -121,6 +120,4 @@ public class CartsController {
         }
     }
 
-    // 장바구니에서 상품 주문
-    // 유저가 본인의 장바구니에서 상품을 선택해 주문 가능.
 }

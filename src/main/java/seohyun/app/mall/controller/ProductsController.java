@@ -6,10 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import seohyun.app.mall.models.ProductInquiries;
-import seohyun.app.mall.models.Products;
-import seohyun.app.mall.models.Reviews;
-import seohyun.app.mall.models.Users;
+import seohyun.app.mall.models.*;
 import seohyun.app.mall.service.*;
 import seohyun.app.mall.utils.*;
 
@@ -28,19 +25,22 @@ public class ProductsController {
     private final UsersService usersService;
     private final ProductQService productQService;
     private final ReviewsService reviewsService;
+    private final CommentsService commentsService;
+    private final RecommentsService recommentsService;
     private final Jwt jwt;
     private final seohyun.app.mall.utils.File file;
+    private final ImageRegister imageRegister;
 
     // 상품 등록
     // role = 2 만 상품 등록 가능.
     @PostMapping("/createproduct")
     public ResponseEntity<Object> createProduct(
-            @RequestHeader String xauth, @ModelAttribute Products products,
+            @RequestHeader String authorization, @ModelAttribute Products products,
             @RequestPart(required = false) MultipartFile[] image
     ) throws Exception {
         try {
             Map<String, String> map = new HashMap<>();
-            String decoded = jwt.VerifyToken(xauth);
+            String decoded = jwt.VerifyToken(authorization);
 
             Users findUserId = usersService.findUserId(decoded);
             if (findUserId.getRole() != 2) {
@@ -53,7 +53,8 @@ public class ProductsController {
                 products.setUserId(decoded);
 
                 if (image != null) {
-                    List<String> list = new ArrayList<>();
+                    List<String> list = new ArrayList<String>();
+
                     for (MultipartFile image1 : image) {
                         // 1. 파일 저장 경로 설정 : 실제 서비스되는 위치(프로젝트 외부에 저장)
                         String uploadPath = "/Users/parkseohyun/project/mall/src/main/java/seohyun/app/mall/imageUpload/";
@@ -63,11 +64,10 @@ public class ProductsController {
                         UUID uuid2 = UUID.randomUUID();
                         String savedFileName = uuid2.toString() + "_" + originalFileName;
                         // 4. 파일 생성
-                        File file1 = new File(uploadPath + savedFileName);
+                        java.io.File file1 = new File(uploadPath + savedFileName);
                         // 5. 서버로 전송
                         image1.transferTo(file1);
                         // model로 저장
-
                         list.add(uploadPath + savedFileName);
                     }
                     String multiImages = String.join(",", list);
@@ -127,11 +127,11 @@ public class ProductsController {
     // 상품을 등록한 사람 or 관리자 (role = 3)만 수정 가능.
     @PostMapping("/updateproduct")
     public ResponseEntity<Object> updateProduct(
-            @RequestHeader String xauth, @ModelAttribute Products products,
+            @RequestHeader String authorization, @ModelAttribute Products products,
             @RequestPart(required = false) MultipartFile[] image) throws Exception {
         try {
             Map<String, String> map = new HashMap<>();
-            String decoded = jwt.VerifyToken(xauth);
+            String decoded = jwt.VerifyToken(authorization);
             Users findUserId = usersService.findUserId(decoded);
             Products getById = productsService.getById(products.getId());
 
@@ -139,7 +139,7 @@ public class ProductsController {
                 map.put("result", "failed 수정 권한이 없습니다.");
                 return new ResponseEntity<>(map, HttpStatus.OK);
             }
-            // 기존 이미지를 변수에 담아둔`다.
+            // 기존 이미지를 변수에 담아둔다.
             String priorImage = getById.getImageUrl();
             products.setUserId(decoded);
             if (image != null) {
@@ -184,11 +184,11 @@ public class ProductsController {
     // 상품을 등록한 사람 or 관리자 (role = 3)만 삭제 가능.
     @PostMapping("/deleteproduct")
     public ResponseEntity<Object> deleteProduct(
-            @RequestHeader String xauth, @RequestBody Map<String, String> deleteReq) throws Exception {
+            @RequestHeader String authorization, @RequestBody Map<String, String> deleteReq) throws Exception {
         try {
             Map<String, String> map = new HashMap<>();
 
-            String decoded = jwt.VerifyToken(xauth);
+            String decoded = jwt.VerifyToken(authorization);
 
             Users findUserId = usersService.findUserId(decoded);
             Products getById = productsService.getById(deleteReq.get("id"));
@@ -212,19 +212,33 @@ public class ProductsController {
                 }
             }.start();
 
-            // 해당상품 관련 문의글 삭제
+            // 해당상품 관련 문의글 삭제(+문의글의 답변+답변의 댓글)
             List<ProductInquiries> productQ = productQService.getByProductId(deleteReq.get("id"));
             if (productQ != null) {
                 for (ProductInquiries pi : productQ) {
-                productQService.deleteProductQ(pi.getId());}
+                productQService.deleteProductQ(pi.getId());
+                Comments comment = commentsService.getByProductQId(pi.getId());
+                if (comment != null) {
+                    commentsService.deleteComment(comment.getId());
+                }
+                ReComments reComment = recommentsService.getByCommentsId(comment.getId());
+                if (reComment != null) {
+                    recommentsService.deleteReComment(reComment.getId());
+                }
+                }
+
             }
-            // 해당상품 관련 후기글 삭제
+            // 해당상품 관련 후기글 삭제(+후기글의 답변)
             List<Reviews> reviews = reviewsService.getByProductId(deleteReq.get("id"));
             if (reviews != null) {
                 for (Reviews r : reviews) {
-                reviewsService.deleteReview(r.getId());}
+                reviewsService.deleteReview(r.getId());
+                ReviewComments reviewComment = reviewsService.getByReviewsId(r.getId());
+                if (reviewComment != null) {
+                    reviewsService.deleteComment(reviewComment.getId());
+                }
+                }
             }
-
             return new ResponseEntity<>(map, HttpStatus.OK);
         } catch (Exception e) {
             Map<String, String> map = new HashMap<>();
@@ -257,12 +271,12 @@ public class ProductsController {
     // 상품 이미지 삭제
     @PostMapping("/deleteimage")
     public ResponseEntity<Object> deleteImage(
-            @RequestHeader String xauth, @ModelAttribute Products products,
+            @RequestHeader String authorization, @ModelAttribute Products products,
             @RequestPart(required = false) MultipartFile image
     ) throws Exception {
         try {
             Map<String, String> map = new HashMap<>();
-            String decoded = jwt.VerifyToken(xauth);
+            String decoded = jwt.VerifyToken(authorization);
 
             Users findUserId = usersService.findUserId(decoded);
             Products getById = productsService.getById(products.getId());
@@ -295,12 +309,12 @@ public class ProductsController {
     // 상품 이미지 여러장 삭제
     @PostMapping("/deleteproduct2")
     public ResponseEntity<Object> deleteProduct2(
-            @RequestHeader String xauth, @RequestBody Map<String, String> req
+            @RequestHeader String authorization, @RequestBody Map<String, String> req
     ) throws Exception {
         try {
             Map<String, String> map = new HashMap<>();
 
-            String decoded = jwt.VerifyToken(xauth);
+            String decoded = jwt.VerifyToken(authorization);
 
             Users findUserId = usersService.findUserId(decoded);
             Products getById = productsService.getById(req.get("id"));
@@ -335,14 +349,14 @@ public class ProductsController {
     // 페이지 단위로 조회. (기본값 page = 0, limit = 10 설정)
     @GetMapping("/getproductsbyuser")
     public ResponseEntity<Object> getProductsByUser(
-            @RequestHeader String xauth,
+            @RequestHeader String authorization,
             @RequestParam(value = "page", defaultValue = "0") Integer pageNumber,
             @RequestParam(value = "limit", defaultValue = "10") Integer pageSize
     ) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
-            String decoded = jwt.VerifyToken(xauth);
+            String decoded = jwt.VerifyToken(authorization);
             List<Products> productsList = productsService.getByUserId(decoded, pageNumber, pageSize);
             return new ResponseEntity<>(productsList, HttpStatus.OK);
         } catch (Exception e){

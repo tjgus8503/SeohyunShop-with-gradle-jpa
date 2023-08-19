@@ -8,7 +8,5 @@ import seohyun.app.mall.models.ReviewComments;
 public interface ReviewCommentsRepository extends JpaRepository<ReviewComments, String> {
     ReviewComments findOneByIdAndUserId(String id, String userId);
 
-    void deleteByIdAndUserId(String id, String userId);
-
     ReviewComments findOneByReviewsId(String reviewsId);
 }

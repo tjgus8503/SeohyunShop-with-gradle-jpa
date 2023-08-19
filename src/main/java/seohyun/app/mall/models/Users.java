@@ -13,7 +13,6 @@ import java.util.Date;
 @Data
 @Entity
 @Table(name = "users")
-// role: 일반 사용자 = "1", 판매자 = "2"
 public class Users {
     @Id
     private String id;

@@ -30,12 +30,12 @@ public class ReviewsController {
     // 본인이 구매한 상품에 후기를 등록할 수 있다.
     @PostMapping("/createreview")
     public ResponseEntity<Object> createReview(
-            @RequestHeader String xauth, @RequestBody Map<String, String> req
+            @RequestHeader String authorization, @RequestBody Map<String, String> req
             ) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
-            String decoded = jwt.VerifyToken(xauth);
+            String decoded = jwt.VerifyToken(authorization);
 
             Purchases checkProduct = purchasesService.getByIdAndUserId(req.get("purchasesId"),decoded);
             if (checkProduct != null) {
@@ -62,12 +62,12 @@ public class ReviewsController {
     // 상품 후기 수정
     @PostMapping("/updatereview")
     public ResponseEntity<Object> updateReview(
-            @RequestHeader String xauth, @RequestBody Reviews reviews
+            @RequestHeader String authorization, @RequestBody Reviews reviews
     ) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
-            String decoded = jwt.VerifyToken(xauth);
+            String decoded = jwt.VerifyToken(authorization);
 
             Reviews getByIdAndUserId = reviewsService.getByIdAndUserId(reviews.getId(), decoded);
             if (getByIdAndUserId == null) {
@@ -88,11 +88,11 @@ public class ReviewsController {
     // 상품 후기 삭제
     @PostMapping("/deletereview")
     public ResponseEntity<Object> deleteReview(
-            @RequestHeader String xauth, @RequestBody Map<String, String> req
+            @RequestHeader String authorization, @RequestBody Map<String, String> req
     ) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
-            String decoded =  jwt.VerifyToken(xauth);
+            String decoded =  jwt.VerifyToken(authorization);
 
             Reviews getByIdAndUserId = reviewsService.getByIdAndUserId(req.get("id"), decoded);
             if (getByIdAndUserId == null) {
@@ -120,12 +120,12 @@ public class ReviewsController {
     // 해당 상품 판매자만 등록 가능.
     @PostMapping("/createcomment")
     public ResponseEntity<Object> createComment(
-            @RequestHeader String xauth, @RequestBody Map<String, String> req
+            @RequestHeader String authorization, @RequestBody Map<String, String> req
     ) throws Exception {
         try {
             Map<String, String> map = new HashMap<>();
 
-            String decoded = jwt.VerifyToken(xauth);
+            String decoded = jwt.VerifyToken(authorization);
             Products getById = productsService.getById(req.get("productId"));
             if (!getById.getUserId().equals(decoded)) {
                 map.put("result", "failed 등록 권한이 없습니다.");
@@ -151,12 +151,12 @@ public class ReviewsController {
     // 답변 등록자 본인만 수정 가능.
     @PostMapping("/updatecomment")
     public ResponseEntity<Object> updateComment(
-            @RequestHeader String xauth, @RequestBody ReviewComments reviewComments
+            @RequestHeader String authorization, @RequestBody ReviewComments reviewComments
     ) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
-            String decoded = jwt.VerifyToken(xauth);
+            String decoded = jwt.VerifyToken(authorization);
 
             ReviewComments findByIdAndUserId = reviewsService.findByIdAndUserId(reviewComments.getId(), decoded);
             if (findByIdAndUserId == null) {
@@ -177,12 +177,12 @@ public class ReviewsController {
     // 후기 답변 삭제
     @PostMapping("/deletecomment")
     public ResponseEntity<Object> deleteComment(
-            @RequestHeader String xauth, @RequestBody Map<String, String> req
+            @RequestHeader String authorization, @RequestBody Map<String, String> req
     ) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
-            String decoded = jwt.VerifyToken(xauth);
+            String decoded = jwt.VerifyToken(authorization);
 
             ReviewComments findByIdAndUserId = reviewsService.findByIdAndUserId(req.get("id"), decoded);
             if (findByIdAndUserId == null) {

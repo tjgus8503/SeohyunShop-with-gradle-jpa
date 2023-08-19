@@ -17,7 +17,6 @@ public class Reviews extends DateEntity {
     private String id;
     @Column(name = "user_id")
     private String userId;
-    // 주문한 상품
     @Column(name = "product_id")
     private String productId;
     private String content;

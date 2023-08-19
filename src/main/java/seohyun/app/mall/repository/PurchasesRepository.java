@@ -11,7 +11,5 @@ import java.util.List;
 public interface PurchasesRepository extends JpaRepository<Purchases, String> {
     List<Purchases> findByUserId(String userId, Pageable pageable);
 
-    Purchases findOneById(String id);
-
     Purchases findByIdAndUserId(String id, String userId);
 }

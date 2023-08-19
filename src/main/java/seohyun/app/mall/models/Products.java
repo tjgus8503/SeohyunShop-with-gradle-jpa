@@ -18,7 +18,6 @@ import java.util.Date;
 @Data
 @Entity
 @Table(name = "products")
-// TODO 상품의 재고는 사용자의 구매갯수에 따라 변한다.
 public class Products extends DateEntity {
     @Id
     private String id;

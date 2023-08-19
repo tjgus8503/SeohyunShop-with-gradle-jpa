@@ -28,11 +28,11 @@ public class ProductQController {
     // 일반 유저 등록 가능. (role = 1)
     @PostMapping("/createproductq")
     public ResponseEntity<Object> createProductQ(
-            @RequestHeader String xauth, @RequestBody ProductInquiries productInquiries) throws Exception {
+            @RequestHeader String authorization, @RequestBody ProductInquiries productInquiries) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
-            String decoded = jwt.VerifyToken(xauth);
+            String decoded = jwt.VerifyToken(authorization);
 
             Users findUserId = usersService.findUserId(decoded);
             if (findUserId.getRole() == 1) {
@@ -59,11 +59,11 @@ public class ProductQController {
     // 본인만 수정 가능
     @PostMapping("/updateproductq")
     public ResponseEntity<Object> updateProductQ(
-            @RequestHeader String xauth, @RequestBody ProductInquiries productInquiries) throws Exception {
+            @RequestHeader String authorization, @RequestBody ProductInquiries productInquiries) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
-            String decoded = jwt.VerifyToken(xauth);
+            String decoded = jwt.VerifyToken(authorization);
 
             ProductInquiries getByIdAndUserId = productQService.getByIdAndUserId(productInquiries.getId(), decoded);
             if (getByIdAndUserId == null) {
@@ -85,11 +85,11 @@ public class ProductQController {
     // 본인만 가능
     @PostMapping("/deleteproductq")
     public ResponseEntity<Object> deleteProductQ(
-            @RequestHeader String xauth, @RequestBody Map<String, String> req) throws Exception {
+            @RequestHeader String authorization, @RequestBody Map<String, String> req) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
-            String decoded = jwt.VerifyToken(xauth);
+            String decoded = jwt.VerifyToken(authorization);
 
             ProductInquiries getByIdAndUserId = productQService.getByIdAndUserId(req.get("id"), decoded);
             if (getByIdAndUserId == null) {

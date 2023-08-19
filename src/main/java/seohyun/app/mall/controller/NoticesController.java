@@ -27,11 +27,11 @@ public class NoticesController {
     // 관리자만 등록 가능. (role = 3)
     @PostMapping("/createnotice")
     public ResponseEntity<Object> createNotice(
-            @RequestHeader String xauth, @RequestBody Notices notices) throws Exception {
+            @RequestHeader String authorization, @RequestBody Notices notices) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
-            String decoded = jwt.VerifyToken(xauth);
+            String decoded = jwt.VerifyToken(authorization);
 
             Users findUserId = usersService.findUserId(decoded);
             if (findUserId.getRole() != 3) {

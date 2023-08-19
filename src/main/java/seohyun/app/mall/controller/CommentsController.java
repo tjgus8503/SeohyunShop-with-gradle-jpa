@@ -30,11 +30,11 @@ public class CommentsController {
     // 문의한 해당 상품의 판매자만 답변 등록 가능
     @PostMapping("/createcomment")
     public ResponseEntity<Object> createComment(
-            @RequestHeader String xauth, @RequestBody Map<String, String> req) throws Exception {
+            @RequestHeader String authorization, @RequestBody Map<String, String> req) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
-            String decoded = jwt.VerifyToken(xauth);
+            String decoded = jwt.VerifyToken(authorization);
 
             Products getById = productsService.getById(req.get("productId"));
             if (!(getById.getUserId().equals(decoded))) {
@@ -63,11 +63,11 @@ public class CommentsController {
     // 본인(답변 단 판매자)만 수정 가능
     @PostMapping("/updatecomment")
     public ResponseEntity<Object> updateComment(
-            @RequestHeader String xauth, @RequestBody Comments comments) throws Exception {
+            @RequestHeader String authorization, @RequestBody Comments comments) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
-            String decoded = jwt.VerifyToken(xauth);
+            String decoded = jwt.VerifyToken(authorization);
 
             Comments getByIdAndUserId = commentsService.getByIdAndUserId(comments.getId(), decoded);
             if (getByIdAndUserId == null) {
@@ -89,11 +89,11 @@ public class CommentsController {
     // 본인(답변 단 판매자)만 삭제 가능
     @PostMapping("/deletecomment")
     public ResponseEntity<Object> deleteComment(
-            @RequestHeader String xauth, @RequestBody Map<String, String> req) throws Exception {
+            @RequestHeader String authorization, @RequestBody Map<String, String> req) throws Exception {
         try {
             Map<String, String> map = new HashMap<>();
 
-            String decoded = jwt.VerifyToken(xauth);
+            String decoded = jwt.VerifyToken(authorization);
 
             Comments getByIdAndUserId = commentsService.getByIdAndUserId(req.get("id"), decoded);
             if (getByIdAndUserId == null) {
@@ -119,12 +119,12 @@ public class CommentsController {
     // 상품문의 답변의 댓글(대댓글) 등록
     @PostMapping("/createrecomment")
     public ResponseEntity<Object> createReComment(
-            @RequestHeader String xauth, @RequestBody Map<String, String> req
+            @RequestHeader String authorization, @RequestBody Map<String, String> req
     ) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
-            String decoded = jwt.VerifyToken(xauth);
+            String decoded = jwt.VerifyToken(authorization);
 
             ProductInquiries getById = productQService.getById(req.get("productInquiriesId"));
             if (!getById.getUserId().equals(decoded)) {
@@ -151,12 +151,12 @@ public class CommentsController {
     // 대댓글 올린 본인만 가능.
     @PostMapping("/updaterecomment")
     public ResponseEntity<Object> updateReComment(
-            @RequestHeader String xauth, @RequestBody ReComments reComments
+            @RequestHeader String authorization, @RequestBody ReComments reComments
     ) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
-            String decoded = jwt.VerifyToken(xauth);
+            String decoded = jwt.VerifyToken(authorization);
 
             ReComments getByIdAndUserId = recommentsService.getByIdAndUserId(reComments.getId(), decoded);
             if (getByIdAndUserId == null) {
@@ -178,12 +178,12 @@ public class CommentsController {
     // 대댓글 올린 본인만 가능.
     @PostMapping("/deleterecomment")
     public ResponseEntity<Object> deleteReComment(
-            @RequestHeader String xauth, @RequestBody Map<String, String> req
+            @RequestHeader String authorization, @RequestBody Map<String, String> req
     ) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
-            String decoded = jwt.VerifyToken(xauth);
+            String decoded = jwt.VerifyToken(authorization);
 
             ReComments getByIdAndUserId = recommentsService.getByIdAndUserId(req.get("id"), decoded);
             if (getByIdAndUserId == null) {

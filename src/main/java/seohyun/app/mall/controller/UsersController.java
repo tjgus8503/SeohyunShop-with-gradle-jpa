@@ -64,8 +64,8 @@ public class UsersController {
 
             Boolean comparePassword = bcrypt.CompareHash(users.getPassword(), userIdCheck.getPassword());
             if (comparePassword == true) {
-                String xauth = jwt.CreateToken(users.getUserId());
-                map.put("xauth", xauth);
+                String authorization = jwt.CreateToken(users.getUserId());
+                map.put("authorization", authorization);
                 map.put("result", "success 로그인 성공");
             } else {
                 map.put("result", "failed 비밀번호가 일치하지 않습니다.");
@@ -79,14 +79,13 @@ public class UsersController {
     }
 
     // 회원정보 수정
-    // TODO 토큰이 만료되었거나 없는 아이디 입니다. 에러 핸들링 추가? 고민.
     @PostMapping("/updateuser")
     public ResponseEntity<Object> updateUser(
-            @RequestHeader String xauth, @RequestBody Users users) throws Exception {
+            @RequestHeader String authorization, @RequestBody Users users) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
-            String decoded  = jwt.VerifyToken(xauth);
+            String decoded  = jwt.VerifyToken(authorization);
             Users findUserId = usersService.findUserId(decoded);
             users.setId(findUserId.getId());
             users.setUserId(findUserId.getUserId());
@@ -105,11 +104,11 @@ public class UsersController {
     // 비밀번호 확인
     @PostMapping("/unregister")
     public ResponseEntity<Object> unRegister(
-            @RequestHeader String xauth, @RequestBody Users users) throws Exception {
+            @RequestHeader String authorization, @RequestBody Users users) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
-            String decoded = jwt.VerifyToken(xauth);
+            String decoded = jwt.VerifyToken(authorization);
             Users findUserId = usersService.findUserId(decoded);
             Boolean comparePassword = bcrypt.CompareHash(users.getPassword(), findUserId.getPassword());
             if (comparePassword == true) {
@@ -129,11 +128,11 @@ public class UsersController {
     // 비밀번호 수정
     @PostMapping("/updatepassword")
     public ResponseEntity<Object> updatePassword(
-            @RequestHeader String xauth, @RequestBody Map<String, String> req) throws Exception {
+            @RequestHeader String authorization, @RequestBody Map<String, String> req) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
-            String decoded = jwt.VerifyToken(xauth);
+            String decoded = jwt.VerifyToken(authorization);
             Users findUserId = usersService.findUserId(decoded);
             if (findUserId == null) {
                 map.put("result", "failed 토큰이 만료되었거나 없는 아이디 입니다.");
@@ -158,15 +157,14 @@ public class UsersController {
     }
 
     // 마이페이지 조회
-    // TODO 마이페이지에 들어갈 정보 생각하기.
     @GetMapping("/getuserinfo")
     public ResponseEntity<Object> getUserInfo(
-            @RequestHeader String xauth
+            @RequestHeader String authorization
     ) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
-            String decoded = jwt.VerifyToken(xauth);
+            String decoded = jwt.VerifyToken(authorization);
             Users userinfo = usersService.findUserId(decoded);
             return new ResponseEntity<>(userinfo, HttpStatus.OK);
         } catch (Exception e){

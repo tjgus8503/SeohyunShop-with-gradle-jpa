@@ -9,8 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import seohyun.app.mall.models.ManagerRequests;
 import seohyun.app.mall.repository.ManagerReqRepository;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)

@@ -37,14 +37,6 @@ public class UsersService {
         }
     }
 
-    public Users checkUserIdAndPassword(Users users) throws Exception {
-        try{
-            return usersRepository.findByUserIdAndPassword(users.getUserId(), users.getPassword());
-        } catch (Exception e){
-            throw new Exception(e);
-        }
-    }
-
     @Transactional
     public void updateUser(Users users) throws Exception {
         try{

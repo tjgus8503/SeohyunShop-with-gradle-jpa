@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-// 상품 페이지에서 바로 주문 (해당 상품만 구매 가능)
 public class Purchases {
     @Id
     private String id;

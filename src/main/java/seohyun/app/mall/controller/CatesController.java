@@ -25,11 +25,11 @@ public class CatesController {
     // 카테고리 생성
     @PostMapping("/createcate")
     public ResponseEntity<Object> createCate(
-            @RequestHeader String xauth, @RequestBody Categories categories) throws Exception {
+            @RequestHeader String authorization, @RequestBody Categories categories) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
-            String decoded = jwt.VerifyToken(xauth);
+            String decoded = jwt.VerifyToken(authorization);
             // 유저가 role = 3(관리자)일 때, 카테고리 생성 가능
             Users findUserId = usersService.findUserId(decoded);
             if (findUserId.getRole() != 3) {

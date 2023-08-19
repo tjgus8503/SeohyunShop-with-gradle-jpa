@@ -12,7 +12,6 @@ import seohyun.app.mall.service.UsersService;
 import seohyun.app.mall.utils.Jwt;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -29,11 +28,11 @@ public class ManagerReqController {
     // 일반 유저만 신청 가능 (role = 1)
     @PostMapping("/createmanagerreq")
     public ResponseEntity<Object> createManagerReq(
-            @RequestHeader String xauth) throws Exception {
+            @RequestHeader String authorization) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
-            String decoded = jwt.VerifyToken(xauth);
+            String decoded = jwt.VerifyToken(authorization);
             ManagerRequests managerRequests = new ManagerRequests();
             Users findUserId = usersService.findUserId(decoded);
             if (findUserId.getRole() != 1) {
@@ -59,11 +58,11 @@ public class ManagerReqController {
     // 수락된 유저는 신청 목록에서 삭제.
     @PostMapping("/acceptmanagerreq")
     public ResponseEntity<Object> acceptManagerReq(
-            @RequestHeader String xauth,  @RequestBody ManagerRequests managerRequests) throws Exception {
+            @RequestHeader String authorization,  @RequestBody ManagerRequests managerRequests) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
-            String decoded = jwt.VerifyToken(xauth);
+            String decoded = jwt.VerifyToken(authorization);
 
             Users findUserId = usersService.findUserId(decoded);
             if (findUserId.getRole() != 3) {
@@ -92,13 +91,13 @@ public class ManagerReqController {
     // 관리자만 조회 가능 (role = 3)
     @GetMapping("/getallmanagerreq")
     public ResponseEntity<Object> getAllManagerReq(
-            @RequestHeader String xauth,
+            @RequestHeader String authorization,
             @RequestParam(value = "page", defaultValue = "0") Integer pageNumber,
             @RequestParam(value = "limit", defaultValue = "10") Integer pageSize) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
-            String decoded = jwt.VerifyToken(xauth);
+            String decoded = jwt.VerifyToken(authorization);
 
             Users findUserId = usersService.findUserId(decoded);
             if (findUserId.getRole() != 3) {

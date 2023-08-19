@@ -22,12 +22,4 @@ public class CatesService {
         }
     }
 
-    public Categories getCategoryId(Long Id) throws Exception {
-        try{
-            return categoriesRepository.findOneById(Id);
-        } catch (Exception e){
-            throw new Exception(e);
-        }
-    }
-
 }

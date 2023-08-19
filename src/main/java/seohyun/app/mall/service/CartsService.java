@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import seohyun.app.mall.models.Carts;
 import seohyun.app.mall.repository.CartsRepository;
 
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
