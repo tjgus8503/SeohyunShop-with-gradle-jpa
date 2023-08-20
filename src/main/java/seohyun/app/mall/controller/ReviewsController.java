@@ -113,24 +113,20 @@ public class ReviewsController {
     // 해당 상품 판매자만 등록 가능.
     @PostMapping("/createcomment")
     public ResponseEntity<Object> createComment(
-            @RequestHeader String authorization, @RequestBody Map<String, String> req
+            @RequestHeader String authorization, @RequestBody ReviewComments reviewComments
     ) throws Exception {
         try {
             Map<String, String> map = new HashMap<>();
 
             String decoded = jwt.VerifyToken(authorization);
-            Products getById = productsService.getById(req.get("productId"));
+            Products getById = productsService.getById(reviewComments.getProductId());
             if (!getById.getUserId().equals(decoded)) {
                 map.put("result", "failed 등록 권한이 없습니다.");
                 return new ResponseEntity<>(map, HttpStatus.OK);
             }
             UUID uuid = UUID.randomUUID();
-            ReviewComments reviewComments = new ReviewComments();
             reviewComments.setId(uuid.toString());
             reviewComments.setUserId(decoded);
-            reviewComments.setReviewsId(req.get("reviewsId"));
-            reviewComments.setContent(req.get("content"));
-            reviewsService.createComment(reviewComments);
             map.put("result", "success 등록이 완료되었습니다.");
             return new ResponseEntity<>(map, HttpStatus.OK);
         } catch (Exception e) {
