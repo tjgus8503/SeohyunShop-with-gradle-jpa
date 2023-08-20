@@ -12,7 +12,7 @@ import java.util.UUID;
 @Service
 public class ImageRegister {
 
-    public void CreateImages(MultipartFile[] image) throws IOException {
+    public List<String> CreateImages(MultipartFile[] image) throws IOException {
 
         List<String> list = new ArrayList<>();
 
@@ -31,5 +31,6 @@ public class ImageRegister {
             // model로 저장
             list.add(uploadPath + savedFileName);
         }
+        return list;
     }
 }

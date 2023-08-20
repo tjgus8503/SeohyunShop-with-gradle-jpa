@@ -12,7 +12,9 @@ import java.util.List;
 @Repository
 public interface ProductQRepository extends JpaRepository<ProductInquiries, String> {
 
-    List<ProductInquiries> findByProductId(String productId);
+    @Modifying
+    @Query(value = "delete from product_inquiries where product_id = :id", nativeQuery = true)
+    void deleteAllByProductId(@Param("id") String id);
 
     ProductInquiries findOneById(String id);
 

@@ -53,6 +53,15 @@ public class ReviewsService {
     }
 
     @Transactional
+    public void deleteReviewByProductId(String id) throws Exception {
+        try{
+            reviewsRepository.deleteAllByProductId(id);
+        } catch (Exception e){
+            throw new Exception(e);
+        }
+    }
+
+    @Transactional
     public void createComment(ReviewComments reviewComments) throws Exception {
         try{
             reviewCommentsRepository.save(reviewComments);
@@ -87,13 +96,15 @@ public class ReviewsService {
         }
     }
 
-    public List<Reviews> getByProductId(String productId) throws Exception {
+    @Transactional
+    public void deleteReviewCommentByProductId(String id) throws Exception {
         try{
-            return reviewsRepository.findByProductId(productId);
+            reviewCommentsRepository.deleteAllByProductId(id);
         } catch (Exception e){
             throw new Exception(e);
         }
     }
+
 
     public ReviewComments getByReviewsId(String reviewsId) throws Exception {
         try{

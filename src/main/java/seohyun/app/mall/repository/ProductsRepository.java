@@ -14,11 +14,8 @@ import java.util.Map;
 @Repository
 public interface ProductsRepository extends JpaRepository<Products, String> {
 
-
-
-    @Query(value = "select products.*, count(reviews.product_id)as reviews_count,count(product_inquiries.product_id)as inquiries_count from products \n" +
-            "left join reviews on products.id = reviews.product_id left join product_inquiries on products.id = product_inquiries.product_id\n" +
-            "where products.id =:id", nativeQuery = true)
+    @Query(value = "select *, (select count(*) from reviews r where product_id = :id) as review_count," +
+            "(select count(*) from product_inquiries pi where product_id = :id) as inquiries_count from products where id = :id", nativeQuery = true)
     Map<String, Object> getProductWithCount(@Param("id") String id);
 
     Products findOneById(String id);
@@ -35,5 +32,4 @@ public interface ProductsRepository extends JpaRepository<Products, String> {
     @Query(value = "update products set stock = stock + :stock where id = :id", nativeQuery = true)
     int addStock(@Param("id") String id, @Param("stock") Long stock);
 
-    // Todo getProductWithCount 서브쿼리로 수정.
 }

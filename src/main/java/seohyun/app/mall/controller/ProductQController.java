@@ -98,13 +98,6 @@ public class ProductQController {
             }
             productQService.deleteProductQ(req.get("id"));
             map.put("result", "success 삭제가 완료되었습니다.");
-
-            // 해당문의의 답변 삭제
-            Comments comment = commentsService.getByProductQId(req.get("id"));
-            if (comment != null) {
-                commentsService.deleteComment(comment.getId());
-            }
-
             return new ResponseEntity<>(map, HttpStatus.OK);
         } catch (Exception e){
             Map<String, String> map = new HashMap<>();

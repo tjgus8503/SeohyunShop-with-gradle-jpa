@@ -17,5 +17,7 @@ public class ReComments extends DateEntity {
     private String userId;
     @Column(name = "comments_id")
     private String commentsId;
+    @Column(name = "product_id")
+    private String productId;
     private String content;
 }

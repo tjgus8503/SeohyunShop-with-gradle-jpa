@@ -101,13 +101,6 @@ public class ReviewsController {
             }
             reviewsService.deleteReview(req.get("id"));
             map.put("result", "success 삭제가 완료되었습니다.");
-
-            // 해당후기의 답변 삭제
-            ReviewComments rc = reviewsService.getByReviewsId(req.get("id"));
-            if (rc != null) {
-                reviewsService.deleteComment(rc.getId());
-            }
-
             return new ResponseEntity<>(map, HttpStatus.OK);
         } catch (Exception e){
             Map<String, String> map = new HashMap<>();

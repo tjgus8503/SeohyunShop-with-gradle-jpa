@@ -54,4 +54,13 @@ public class CommentsService {
             throw new Exception(e);
         }
     }
+
+    @Transactional
+    public void deleteCommentByProductId(String id) throws Exception {
+        try{
+            commentsRepository.deleteAllByProductId(id);
+        } catch (Exception e){
+            throw new Exception(e);
+        }
+    }
 }

@@ -62,4 +62,13 @@ public class RecommentsService {
             throw new Exception(e);
         }
     }
+
+    @Transactional
+    public void deleteReCommentByProductId(String id) throws Exception {
+        try{
+            reCommentsRepository.deleteAllByProductId(id);
+        } catch (Exception e){
+            throw new Exception(e);
+        }
+    }
 }

@@ -30,25 +30,20 @@ public class CommentsController {
     // 문의한 해당 상품의 판매자만 답변 등록 가능
     @PostMapping("/createcomment")
     public ResponseEntity<Object> createComment(
-            @RequestHeader String authorization, @RequestBody Map<String, String> req) throws Exception {
+            @RequestHeader String authorization, @RequestBody Comments comments) throws Exception {
         try{
             Map<String, String> map = new HashMap<>();
 
             String decoded = jwt.VerifyToken(authorization);
 
-            Products getById = productsService.getById(req.get("productId"));
+            Products getById = productsService.getById(comments.getProductId());
             if (!(getById.getUserId().equals(decoded))) {
                 map.put("result", "failed 등록 권한이 없습니다.");
                 return new ResponseEntity<>(map, HttpStatus.OK);
             }
             UUID uuid = UUID.randomUUID();
-            // 디비에 저장될 comments
-            Comments comments = new Comments();
             comments.setId(uuid.toString());
             comments.setUserId(decoded);
-            comments.setProductInquiriesId(req.get("productInquiriesId"));
-            comments.setContent(req.get("content"));
-
             commentsService.createComment(comments);
             map.put("result", "success 등록이 완료되었습니다.");
             return new ResponseEntity<>(map, HttpStatus.OK);
@@ -102,12 +97,6 @@ public class CommentsController {
             }
             commentsService.deleteComment(req.get("id"));
             map.put("result", "success 삭제가 완료되었습니다.");
-
-            // 해당답변의 댓글(대댓글) 삭제.
-            ReComments reComment = recommentsService.getByCommentsId(req.get("id"));
-            if (reComment != null) {
-                recommentsService.deleteReComment(reComment.getId());
-            }
             return new ResponseEntity<>(map, HttpStatus.OK);
         } catch (Exception e){
             Map<String, String> map = new HashMap<>();

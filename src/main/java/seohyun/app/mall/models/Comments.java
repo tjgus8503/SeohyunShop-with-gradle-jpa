@@ -17,5 +17,7 @@ public class Comments extends DateEntity {
     private String userId;
     @Column(name = "product_inquiries_id")
     private String productInquiriesId;
+    @Column(name = "product_id")
+    private String productId;
     private String content;
 }

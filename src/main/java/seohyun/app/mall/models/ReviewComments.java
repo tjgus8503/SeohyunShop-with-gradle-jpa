@@ -17,5 +17,7 @@ public class ReviewComments extends DateEntity {
     private String userId;
     @Column(name = "reviews_id")
     private String reviewsId;
+    @Column(name = "product_id")
+    private String productId;
     private String content;
 }

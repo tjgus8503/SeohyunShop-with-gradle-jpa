@@ -53,24 +53,9 @@ public class ProductsController {
                 products.setUserId(decoded);
 
                 if (image != null) {
-                    List<String> list = new ArrayList<String>();
+                    List<String> result = imageRegister.CreateImages(image);
 
-                    for (MultipartFile image1 : image) {
-                        // 1. 파일 저장 경로 설정 : 실제 서비스되는 위치(프로젝트 외부에 저장)
-                        String uploadPath = "/Users/parkseohyun/project/mall/src/main/java/seohyun/app/mall/imageUpload/";
-                        // 2. 원본 파일 이름 알아오기
-                        String originalFileName = image1.getOriginalFilename();
-                        // 3. 파일 이름 중복되지 않게 이름 변경(서버에 저장할 이름) UUID 사용
-                        UUID uuid2 = UUID.randomUUID();
-                        String savedFileName = uuid2.toString() + "_" + originalFileName;
-                        // 4. 파일 생성
-                        java.io.File file1 = new File(uploadPath + savedFileName);
-                        // 5. 서버로 전송
-                        image1.transferTo(file1);
-                        // model로 저장
-                        list.add(uploadPath + savedFileName);
-                    }
-                    String multiImages = String.join(",", list);
+                    String multiImages = String.join(",", result);
                     products.setImageUrl(multiImages);
 
                 } else {
@@ -143,35 +128,23 @@ public class ProductsController {
             String priorImage = getById.getImageUrl();
             products.setUserId(decoded);
             if (image != null) {
-                List<String> list = new ArrayList<>();
-
-                for (MultipartFile image1 : image) {
-                    // 1. 파일 저장 경로 설정 : 실제 서비스되는 위치(프로젝트 외부에 저장)
-                    String uploadPath = "/Users/parkseohyun/project/mall/src/main/java/seohyun/app/mall/imageUpload/";
-                    // 2. 원본 파일 이름 알아오기
-                    String originalFileName = image1.getOriginalFilename();
-                    // 3. 파일 이름 중복되지 않게 이름 변경(서버에 저장할 이름) UUID 사용
-                    UUID uuid2 = UUID.randomUUID();
-                    String savedFileName = uuid2.toString() + "_" + originalFileName;
-                    // 4. 파일 생성
-                    File file1 = new File(uploadPath + savedFileName);
-                    // 5. 서버로 전송
-                    image1.transferTo(file1);
-                    // model로 저장
-                    list.add(uploadPath + savedFileName);
-                }
-                String multiImages = String.join(",", list);
+                List<String> result = imageRegister.CreateImages(image);
+                String multiImages = String.join(",", result);
                 products.setImageUrl(multiImages);
             }
             productsService.updateProduct(products);
             map.put("result", "success 수정이 완료되었습니다.");
             // 기존 파일은 삭제
-            if (priorImage != null) {
-                List<String> test1 = List.of(priorImage.split(","));
-                for (String file : test1) {
-                    Files.delete(Path.of(file));
+            new Thread() {
+                public void run() {
+                    try{
+                        file.DeleteFile(priorImage);
+                    } catch (Exception e){
+                        // 에러의 발생근원지를 찾아서 단계별로 에러 출력.
+                        e.printStackTrace();
+                    }
                 }
-            }
+            }.start();
             return new ResponseEntity<>(map, HttpStatus.OK);
             } catch(Exception e){
                 Map<String, String> map = new HashMap<>();
@@ -213,32 +186,14 @@ public class ProductsController {
             }.start();
 
             // 해당상품 관련 문의글 삭제(+문의글의 답변+답변의 댓글)
-            List<ProductInquiries> productQ = productQService.getByProductId(deleteReq.get("id"));
-            if (productQ != null) {
-                for (ProductInquiries pi : productQ) {
-                productQService.deleteProductQ(pi.getId());
-                Comments comment = commentsService.getByProductQId(pi.getId());
-                if (comment != null) {
-                    commentsService.deleteComment(comment.getId());
-                }
-                ReComments reComment = recommentsService.getByCommentsId(comment.getId());
-                if (reComment != null) {
-                    recommentsService.deleteReComment(reComment.getId());
-                }
-                }
+            productQService.deleteProductQByProductId(deleteReq.get("id"));
+            commentsService.deleteCommentByProductId(deleteReq.get("id"));
+            recommentsService.deleteReCommentByProductId(deleteReq.get("id"));
 
-            }
+
             // 해당상품 관련 후기글 삭제(+후기글의 답변)
-            List<Reviews> reviews = reviewsService.getByProductId(deleteReq.get("id"));
-            if (reviews != null) {
-                for (Reviews r : reviews) {
-                reviewsService.deleteReview(r.getId());
-                ReviewComments reviewComment = reviewsService.getByReviewsId(r.getId());
-                if (reviewComment != null) {
-                    reviewsService.deleteComment(reviewComment.getId());
-                }
-                }
-            }
+            reviewsService.deleteReviewByProductId(deleteReq.get("id"));
+            reviewsService.deleteReviewCommentByProductId(deleteReq.get("id"));
             return new ResponseEntity<>(map, HttpStatus.OK);
         } catch (Exception e) {
             Map<String, String> map = new HashMap<>();

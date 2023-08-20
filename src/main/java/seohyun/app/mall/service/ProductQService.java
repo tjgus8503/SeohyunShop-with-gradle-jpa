@@ -49,13 +49,16 @@ public class ProductQService {
         }
     }
 
-    public List<ProductInquiries> getByProductId(String productId) throws Exception {
+    @Transactional
+    public void deleteProductQByProductId(String id) throws Exception {
         try{
-            return productQRepository.findByProductId(productId);
+            productQRepository.deleteAllByProductId(id);
         } catch (Exception e){
             throw new Exception(e);
         }
     }
+
+
 
     public ProductInquiries getById(String id) throws Exception {
         try{
