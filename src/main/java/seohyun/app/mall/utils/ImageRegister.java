@@ -9,6 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+
 @Service
 public class ImageRegister {
 
@@ -32,5 +36,18 @@ public class ImageRegister {
             list.add(uploadPath + savedFileName);
         }
         return list;
+    }
+
+    public void DeleteFile(String priorImage) throws Exception {
+        try{
+            if (priorImage != null) {
+                List<String> test = List.of(priorImage.split(","));
+                for (String image : test) {
+                    Files.delete(Path.of(image));
+                }
+            }
+        } catch (Exception e){
+            throw new Exception(e);
+        }
     }
 }

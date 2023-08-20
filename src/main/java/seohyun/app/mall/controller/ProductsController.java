@@ -28,7 +28,6 @@ public class ProductsController {
     private final CommentsService commentsService;
     private final RecommentsService recommentsService;
     private final Jwt jwt;
-    private final seohyun.app.mall.utils.File file;
     private final ImageRegister imageRegister;
 
     // 상품 등록
@@ -138,7 +137,7 @@ public class ProductsController {
             new Thread() {
                 public void run() {
                     try{
-                        file.DeleteFile(priorImage);
+                        imageRegister.DeleteFile(priorImage);
                     } catch (Exception e){
                         // 에러의 발생근원지를 찾아서 단계별로 에러 출력.
                         e.printStackTrace();
@@ -177,7 +176,7 @@ public class ProductsController {
             new Thread() {
                 public void run() {
                     try{
-                        file.DeleteFile(priorImage);
+                        imageRegister.DeleteFile(priorImage);
                     } catch (Exception e){
                         // 에러의 발생근원지를 찾아서 단계별로 에러 출력.
                         e.printStackTrace();
