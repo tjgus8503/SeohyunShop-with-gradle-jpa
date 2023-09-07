@@ -23,6 +23,19 @@ public class UsersController {
     private final Jwt jwt;
 
 
+    @GetMapping("/hello")
+    public ResponseEntity<Object> hello() throws Exception {
+        try{
+            Map<String, String> map = new HashMap<>();
+            map.put("result", "hello");
+            return new ResponseEntity<>(map, HttpStatus.OK);
+        } catch (Exception e) {
+            Map<String, String> map = new HashMap<>();
+            map.put("error", e.toString());
+            return new ResponseEntity<>(map, HttpStatus.OK);
+        }
+    }
+
     // 회원가입
     @PostMapping("/signup")
     public ResponseEntity<Object> signUp(@RequestBody Users users) throws Exception {
